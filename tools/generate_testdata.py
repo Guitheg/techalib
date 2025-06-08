@@ -29,6 +29,7 @@ CONFIG_DICT = {
     "WMA": Configuration(talib, "WMA", ["close"], dict(timeperiod=30), ["out"]),
     "DEMA": Configuration(talib, "DEMA", ["close"], dict(timeperiod=30), ["out"]),
     "TEMA": Configuration(talib, "TEMA", ["close"], dict(timeperiod=30), ["out"]),
+    "TRIMA": Configuration(talib, "TRIMA", ["close"], dict(timeperiod=30), ["out"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):

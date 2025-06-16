@@ -33,6 +33,11 @@ CONFIG_DICT = {
     "TRIMA": Configuration(talib, "TRIMA", ["close"], dict(timeperiod=30), ["out"]),
     "T3": Configuration(talib, "T3", ["close"], dict(timeperiod=20, vfactor=0.7), ["out"]),
     "KAMA": Configuration(talib, "KAMA", ["close"], dict(timeperiod=30), ["out"]),
+    "MIDPOINT": Configuration(talib, "MIDPOINT", ["close"], dict(timeperiod=14), ["out"]),
+    "MIDPRICE": Configuration(talib, "MIDPRICE", ["high", "low"], dict(timeperiod=14), ["out"]),
+    "ROC": Configuration(talib, "ROC", ["close"], dict(timeperiod=10), ["out"]),
+    "ATR": Configuration(talib, "ATR", ["high", "low", "close"], dict(timeperiod=14), ["atr"]),
+    "AD": Configuration(talib, "AD", ["high", "low", "close", "volume"], dict(), ["ad"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):

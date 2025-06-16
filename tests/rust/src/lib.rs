@@ -2,6 +2,10 @@
 pub(crate) mod helper;
 
 #[cfg(test)]
+pub(crate) mod tests_ad;
+#[cfg(test)]
+pub(crate) mod tests_atr;
+#[cfg(test)]
 pub(crate) mod tests_bbands;
 #[cfg(test)]
 pub(crate) mod tests_dema;
@@ -11,6 +15,12 @@ pub(crate) mod tests_ema;
 pub(crate) mod tests_kama;
 #[cfg(test)]
 pub(crate) mod tests_macd;
+#[cfg(test)]
+pub(crate) mod tests_midpoint;
+#[cfg(test)]
+pub(crate) mod tests_midprice;
+#[cfg(test)]
+pub(crate) mod tests_roc;
 #[cfg(test)]
 pub(crate) mod tests_rsi;
 #[cfg(test)]

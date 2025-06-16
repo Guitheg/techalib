@@ -1,8 +1,13 @@
+pub mod ad;
+pub mod atr;
 pub mod bbands;
 pub mod dema;
 pub mod ema;
 pub mod kama;
 pub mod macd;
+pub mod midpoint;
+pub mod midprice;
+pub mod roc;
 pub mod rsi;
 pub mod sma;
 pub mod t3;

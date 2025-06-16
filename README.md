@@ -46,8 +46,8 @@ The number of supported indicators is set to increase.
 | ----------------          | ---------------------------------------------                   | ---------- |
 | **_Overlap_**             |||
 |                           | **bbands** - Bollinger Bands                                    | ✅        |
-|                           | **midpoint** - MidPoint over period                             | ⬜        |
-|                           | **midprice** - Midpoint Price over period                       | ⬜        |
+|                           | **midpoint** - MidPoint over period                             | ✅        |
+|                           | **midprice** - Midpoint Price over period                       | ✅        |
 | _Moving Average_          | **sma** - Simple Moving Average                                 | ✅        |
 |                           | **ema** - Exponential Moving Average                            | ✅        |
 |                           | **wma** - Weighted Moving Average                               | ✅        |
@@ -65,15 +65,15 @@ The number of supported indicators is set to increase.
 |                           | **minus_dm** - Minus Directional Movement                       | ⬜        |
 |                           | **plus_di** - Plus Directional Indicator                        | ⬜        |
 |                           | **plus_dm** - Plus Directional Movement                         | ⬜        |
-|                           | **roc** - Rate of change                                        | ⬜        |
+|                           | **roc** - Rate of change                                        | ✅        |
 |                           | **rocr** - Rate of change ratio                                 | ⬜        |
 |                           | **rocr100** - Rate of change ratio 100 scale                    | ⬜        |
 | _Oscillator_              | **rsi** - Relative Strength Index                               | ✅        |
 |                           | **aroonosc** - Aroon Oscillator                                 | ⬜        |
 | **_Volume_**              |||
-|                           | **ad** - Chaikin A/D Line                                       | ⬜        |
+|                           | **ad** - Chaikin A/D Line                                       | ✅        |
 | **_Volatility_**          |||
-|                           | **atr** - Average True Range                                    | ⬜        |
+|                           | **atr** - Average True Range                                    | ✅        |
 
 ## 🤓 Contribution
 

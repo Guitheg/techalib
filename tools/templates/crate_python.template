@@ -62,7 +62,7 @@ impl Py${IndicatorName}State {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        // TODO: IMPLEMENTS TO_STRING
+        format!("{:?}", self)
     }
 }
 impl From<${IndicatorName}State> for Py${IndicatorName}State {

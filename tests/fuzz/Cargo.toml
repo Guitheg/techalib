@@ -88,3 +88,38 @@ path = "fuzz_targets/fuzz_kama.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "midpoint"
+path = "fuzz_targets/fuzz_midpoint.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "midprice"
+path = "fuzz_targets/fuzz_midprice.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "roc"
+path = "fuzz_targets/fuzz_roc.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "atr"
+path = "fuzz_targets/fuzz_atr.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "ad"
+path = "fuzz_targets/fuzz_ad.rs"
+test = false
+doc = false
+bench = false

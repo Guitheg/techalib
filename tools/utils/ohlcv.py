@@ -12,7 +12,7 @@ def random_walk(size: int, seed: int = 5, scale = 1.0, mean = 0.0, start_offset 
     low_prices = open_prices - rng.uniform(scale/2, scale*4, size=size)
     high_prices = open_prices + rng.uniform(scale/2, scale*4, size=size)
     close_prices = open_prices + rng.uniform(-scale, scale, size=size)
-    volumes = rng.integers(low=100, high=1000, size=size)
+    volumes = rng.uniform(low=100, high=1000, size=size)
     close_prices = np.clip(close_prices, low_prices, high_prices)
     open_prices = np.clip(open_prices, low_prices, high_prices)
     open_prices = np.maximum(open_prices, 0)

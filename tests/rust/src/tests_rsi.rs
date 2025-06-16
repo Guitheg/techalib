@@ -6,7 +6,7 @@ use crate::{assert_vec_float_eq, expect_err_overflow_or_ok_with};
 use proptest::{prop_assert, prop_assert_eq, proptest};
 use techalib::{
     errors::TechalibError,
-    indicators::rsi::{rsi, RsiResult},
+    indicators::rsi::{rsi, rsi_into, RsiResult},
     traits::State,
     types::Float,
 };
@@ -170,7 +170,7 @@ fn period_zero() {
     let period = 0;
     let result = rsi(data, period);
     assert!(result.is_err());
-    assert!(matches!(result, Err(TechalibError::InsufficientData)));
+    assert!(matches!(result, Err(TechalibError::BadParam(_))));
 }
 
 #[test]
@@ -219,6 +219,16 @@ fn next_with_finite_neg_extreme_err_overflow_or_ok_all_finite() {
     });
 }
 
+#[test]
+fn different_length_input_output_err() {
+    let input = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+    let mut output = vec![0.0; 3];
+    let period = 3;
+    let result = rsi_into(&input, period, output.as_mut_slice());
+    assert!(result.is_err());
+    assert!(matches!(result, Err(TechalibError::BadParam(_))));
+}
+
 proptest! {
     #[test]
     fn proptest(
@@ -230,10 +240,12 @@ proptest! {
 
         if data.len() <= period || period <= 1 {
             prop_assert!(result.is_err());
-            if period <= 1 && data.len() > 1 {
-                prop_assert!(matches!(result, Err(TechalibError::BadParam(_))));
+            if period <= 1 {
+                prop_assert!(matches!(result, Err(TechalibError::BadParam(_))),
+                    "Expected BadParam error for period <= 1, got: {:?}", result);
             } else {
-                prop_assert!(matches!(result, Err(TechalibError::InsufficientData)));
+                prop_assert!(matches!(result, Err(TechalibError::InsufficientData)),
+                    "Expected InsufficientData error for data length <= period, got: {:?}", result);
             }
         } else {
             let rsi_values = result.unwrap().values;

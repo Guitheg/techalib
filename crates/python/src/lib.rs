@@ -1,10 +1,15 @@
 use pyo3::prelude::*;
 
+mod py_ad;
+mod py_atr;
 mod py_bbands;
 mod py_dema;
 mod py_ema;
 mod py_kama;
 mod py_macd;
+mod py_midpoint;
+mod py_midprice;
+mod py_roc;
 mod py_rsi;
 mod py_sma;
 mod py_t3;
@@ -58,5 +63,20 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_kama::kama, m)?)?;
     m.add_function(wrap_pyfunction!(py_kama::kama_next, m)?)?;
     m.add_class::<py_kama::PyKamaState>()?;
+    m.add_function(wrap_pyfunction!(py_midpoint::midpoint, m)?)?;
+    m.add_function(wrap_pyfunction!(py_midpoint::midpoint_next, m)?)?;
+    m.add_class::<py_midpoint::PyMidpointState>()?;
+    m.add_function(wrap_pyfunction!(py_midprice::midprice, m)?)?;
+    m.add_function(wrap_pyfunction!(py_midprice::midprice_next, m)?)?;
+    m.add_class::<py_midprice::PyMidpriceState>()?;
+    m.add_function(wrap_pyfunction!(py_roc::roc, m)?)?;
+    m.add_function(wrap_pyfunction!(py_roc::roc_next, m)?)?;
+    m.add_class::<py_roc::PyRocState>()?;
+    m.add_function(wrap_pyfunction!(py_atr::atr, m)?)?;
+    m.add_function(wrap_pyfunction!(py_atr::atr_next, m)?)?;
+    m.add_class::<py_atr::PyAtrState>()?;
+    m.add_function(wrap_pyfunction!(py_ad::ad, m)?)?;
+    m.add_function(wrap_pyfunction!(py_ad::ad_next, m)?)?;
+    m.add_class::<py_ad::PyAdState>()?;
     Ok(())
 }

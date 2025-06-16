@@ -6,7 +6,7 @@ use crate::helper::{
 use crate::expect_err_overflow_or_ok_with;
 use techalib::{
     errors::TechalibError,
-    indicators::dema::{dema, dema_skip_period_unchecked, DemaResult},
+    indicators::dema::{dema, dema_into, lookback_from_period, DemaResult},
     traits::State,
     types::Float,
 };
@@ -132,7 +132,7 @@ fn constant_input() {
         result
             .values
             .iter()
-            .skip(dema_skip_period_unchecked(period))
+            .skip(lookback_from_period(period).unwrap())
             .all(|&v| approx_eq_float(v, 10.0, 1e-8)),
         "Expected all values to be approximately 10.0"
     );
@@ -148,7 +148,7 @@ fn increasing_input() {
             .values
             .iter()
             .zip(data.iter())
-            .skip(dema_skip_period_unchecked(period))
+            .skip(lookback_from_period(period).unwrap())
             .all(|(out, &inp)| approx_eq_float(*out, inp, 1e-8)),
         "Expected DEMA values to be less than or equal to the input values"
     );
@@ -164,8 +164,18 @@ fn decreasing_input() {
             .values
             .iter()
             .zip(data.iter())
-            .skip(dema_skip_period_unchecked(period))
+            .skip(lookback_from_period(period).unwrap())
             .all(|(out, &inp)| approx_eq_float(*out, inp, 1e-8)),
         "Expected DEMA values to be greater than or equal to the input values"
     );
+}
+
+#[test]
+fn different_length_input_output_err() {
+    let input = vec![1.0, 2.0, 3.0, 4.0, 5.0];
+    let mut output = vec![0.0; 3];
+    let period = 3;
+    let result = dema_into(&input, period, None, output.as_mut_slice());
+    assert!(result.is_err());
+    assert!(matches!(result, Err(TechalibError::BadParam(_))));
 }

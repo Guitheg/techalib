@@ -21,7 +21,7 @@ fn generated_and_no_lookahead_atr(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("atr").unwrap();
 
     let close_prev = &close[0..last_idx];
     let high_prev = &high[0..last_idx];
@@ -35,7 +35,7 @@ fn generated_and_no_lookahead_atr(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.atr);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -94,7 +94,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(atr(&high, &low, &close, period), |result: AtrResult| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.atr.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });
@@ -169,9 +169,8 @@ fn different_length_input_output_err() {
 fn different_length_inputs_err() {
     let close = vec![1.0, 2.0, 3.0, 4.0, 5.0];
     let low = vec![1.0, 2.0, 3.0];
-    let mut output = vec![0.0; 5];
     let period = 3;
-    let result = atr_into(&close, &low, &close, period, output.as_mut_slice());
+    let result = atr(&close, &low, &close, period);
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::BadParam(_))));
 }

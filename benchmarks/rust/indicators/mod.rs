@@ -1,3 +1,4 @@
+pub(crate) mod bench_ad;
 pub(crate) mod bench_atr;
 pub(crate) mod bench_bbands;
 pub(crate) mod bench_dema;

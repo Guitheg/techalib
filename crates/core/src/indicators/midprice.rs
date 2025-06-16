@@ -101,6 +101,7 @@ pub struct MidpriceState {
 /// ---
 /// This struct represents a sample for the MIDPRICE calculation.
 /// It contains the high and low prices of the sample.
+#[derive(Debug, Clone, Copy)]
 pub struct MidpriceSample {
     /// The high price of the sample
     pub high: Float,

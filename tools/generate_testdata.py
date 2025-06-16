@@ -36,7 +36,8 @@ CONFIG_DICT = {
     "MIDPOINT": Configuration(talib, "MIDPOINT", ["close"], dict(timeperiod=14), ["out"]),
     "MIDPRICE": Configuration(talib, "MIDPRICE", ["high", "low"], dict(timeperiod=14), ["out"]),
     "ROC": Configuration(talib, "ROC", ["close"], dict(timeperiod=10), ["out"]),
-    "ATR": Configuration(talib, "ATR", ["high", "low", "close"], dict(timeperiod=14), ["out"]),
+    "ATR": Configuration(talib, "ATR", ["high", "low", "close"], dict(timeperiod=14), ["atr"]),
+    "AD": Configuration(talib, "AD", ["high", "low", "close", "volume"], dict(), ["ad"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):

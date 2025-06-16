@@ -71,7 +71,7 @@ The number of supported indicators is set to increase.
 | _Oscillator_              | **rsi** - Relative Strength Index                               | ✅        |
 |                           | **aroonosc** - Aroon Oscillator                                 | ⬜        |
 | **_Volume_**              |||
-|                           | **ad** - Chaikin A/D Line                                       | ⬜        |
+|                           | **ad** - Chaikin A/D Line                                       | ✅        |
 | **_Volatility_**          |||
 |                           | **atr** - Average True Range                                    | ✅        |
 

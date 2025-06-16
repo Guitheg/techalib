@@ -57,7 +57,7 @@ use crate::types::Float;
 #[derive(Debug)]
 pub struct AtrResult {
     /// The calculated values of the ATR.
-    pub values: Vec<Float>,
+    pub atr: Vec<Float>,
     /// The [`AtrState`] state of the ATR calculation.
     pub state: AtrState,
 }
@@ -96,6 +96,7 @@ pub struct AtrState {
 /// ---
 /// This struct represents a sample for the ATR calculation.
 /// It contains the high, low and close prices.
+#[derive(Debug, Clone, Copy)]
 pub struct AtrSample {
     /// The high price of the sample.
     pub high: Float,
@@ -182,7 +183,7 @@ pub fn atr(
     let atr_state = atr_into(high, low, close, period, output.as_mut_slice())?;
 
     Ok(AtrResult {
-        values: output,
+        atr: output,
         state: atr_state,
     })
 }

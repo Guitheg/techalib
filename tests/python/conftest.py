@@ -2,11 +2,73 @@ from concurrent.futures import ThreadPoolExecutor
 import pytest
 from typing import Tuple, Callable
 from numpy.typing import NDArray
+from numpy import testing
 import pandas as pd
 import numpy as np
 import time
+import importlib
 
 DATA_DIR = "tests/data/generated/{feature_name}.csv"
+
+@pytest.fixture
+def test_with_generated_data(csv_loader) -> Callable[[Callable], None]:
+    def _test_with_generated_data(
+            filepath: str,
+            tx_fct: Callable,
+            tx_next_fct: Callable,
+            input_names: list,
+            output_names: list,
+            rtol: float = 1e-7,
+            atol: float = 0.0,
+        ) -> None:
+        df = csv_loader(filepath)
+        next_count = 10
+        prev_inputs = [df[name].iloc[:-next_count] for name in input_names]
+        result = tx_fct(*prev_inputs)
+        for name in output_names:
+            out = getattr(result, name, None)
+            expected = df[name].iloc[:-next_count]
+            testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
+
+        state = result.state
+        for i in range(next_count):
+            next_inputs = [df[name].iloc[-next_count + i] for name in input_names]
+            state = tx_next_fct(*next_inputs, state)
+            for name in output_names:
+                out = getattr(state, name, None)
+                expected = df[name].iloc[-next_count + i]
+                testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
+    return _test_with_generated_data
+
+@pytest.fixture
+def test_numpy_with_generated_data(csv_loader) -> Callable[[Callable], None]:
+    def _test_numpy_with_generated_data(
+            filepath: str,
+            tx_fct: Callable,
+            tx_next_fct: Callable,
+            input_names: list,
+            output_names: list,
+            rtol: float = 1e-7,
+            atol: float = 0.0,
+        ) -> None:
+        df = csv_loader(filepath)
+        next_count = 10
+        prev_inputs = [np.array(df[name].iloc[:-next_count]) for name in input_names]
+        result = tx_fct(*prev_inputs)
+        for name in output_names:
+            out = getattr(result, name, None)
+            expected = np.array(df[name].iloc[:-next_count])
+            testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
+
+        state = result.state
+        for i in range(next_count):
+            next_inputs = [np.array(df[name].iloc[-next_count + i]) for name in input_names]
+            state = tx_next_fct(*next_inputs, state)
+            for name in output_names:
+                out = getattr(state, name, None)
+                expected = np.array(df[name].iloc[-next_count + i])
+                testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
+    return _test_numpy_with_generated_data
 
 @pytest.fixture
 def csv_loader() -> Callable[[str], pd.DataFrame] :

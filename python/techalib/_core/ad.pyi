@@ -5,62 +5,60 @@ from typing import NamedTuple, Optional, Tuple
 from numpy.typing import NDArray
 
 @dataclass(frozen=True)
-class AtrState:
-    """State for the Atr computation"""
-    atr: float
-    prev_close: float
-    period: int
+class AdState:
+    """State for the Ad computation"""
+    ad: float
     ...
 
-class AtrResult(NamedTuple):
-    """Result of the Atr computation"""
-    out: NDArray
-    state: AtrState
+class AdResult(NamedTuple):
+    """Result of the Ad computation"""
+    values: NDArray
+    state: AdState
 
-def atr(
+def ad(
     high: NDArray,
     low: NDArray,
     close: NDArray,
-    period: int = 14,
+    volume: NDArray,
     release_gil: bool = False
-) -> AtrResult | Tuple[NDArray, AtrState]:
+) -> AdResult | Tuple[NDArray, AdState]:
     """
-    Atr: Average True Range indicator.
+    AD: Chaikin Accumulation/Distribution Line
     ----------
 
     Parameters
     ----------
     high : NDArray
-        High prices.
+        High prices for the period.
     low : NDArray
-        Low prices.
+        Low prices for the period.
     close : NDArray
-        Close prices.
-    period : int, default 14
-        The number of periods to use for the ATR calculation.
-        Must be greater than 0.
+        Close prices for the period.
+    volume : NDArray
+        Volume for the period.
     release_gil : bool, default False
         If ``True``, the GIL is released during the computation.
         This is useful when using this function in a multi-threaded context.
 
     Returns
     -------
-    AtrResult
-        A named tuple containing the result of the Atr computation.
+    AdResult
+        A named tuple containing the result of the Ad computation.
         - values: NDArray
             The computed values.
-        - state: `AtrState`
+        - state: `AdState`
     """
     ...
 
-def atr_next(
+def ad_next(
     high: float,
     low: float,
     close: float,
-    state: AtrState
-) -> AtrState:
+    volume: float,
+    state: AdState
+) -> AdState:
     """
-    Update the Atr state with the next data.
+    Update the Ad state with the next data.
 
     Parameters
     ----------
@@ -69,14 +67,15 @@ def atr_next(
     low : float
         The current low price.
     close : float
-        The current close price
-
-    state : AtrState
-        The current state of the Atr computation.
+        The current close price.
+    volume : float
+        The current volume.
+    state : AdState
+        The current state of the Ad computation.
 
     Returns
     -------
-    AtrState
+    AdState
         The updated state after including the new value.
     """
     ...

@@ -2,6 +2,8 @@
 pub(crate) mod helper;
 
 #[cfg(test)]
+pub(crate) mod tests_ad;
+#[cfg(test)]
 pub(crate) mod tests_atr;
 #[cfg(test)]
 pub(crate) mod tests_bbands;

@@ -7,8 +7,10 @@ import pandas as pd
 import numpy as np
 import time
 import importlib
+import os
 
 DATA_DIR = "tests/data/generated/{feature_name}.csv"
+THREAD_TEST_TOL: float = float(os.getenv("THREAD_TEST_TOL", "0.5"))
 
 @pytest.fixture
 def test_with_generated_data(csv_loader) -> Callable[[Callable], None]:
@@ -80,7 +82,7 @@ def csv_loader() -> Callable[[str], pd.DataFrame] :
 
 @pytest.fixture
 def thread_test() -> Callable[[Callable], None]:
-    def _thread_test(tx_lambda: Callable, n_threads: int = 4, tolerance: float = 0.5) -> None:
+    def _thread_test(tx_lambda: Callable, n_threads: int = 4, tolerance: float = THREAD_TEST_TOL) -> None:
         data = np.random.rand(5_000_000).astype(np.float64)
         t0 = time.perf_counter()
         for _ in range(n_threads):

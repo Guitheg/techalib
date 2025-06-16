@@ -240,10 +240,12 @@ proptest! {
 
         if data.len() <= period || period <= 1 {
             prop_assert!(result.is_err());
-            if period <= 1 && data.len() > 1 {
-                prop_assert!(matches!(result, Err(TechalibError::BadParam(_))));
+            if period <= 1 {
+                prop_assert!(matches!(result, Err(TechalibError::BadParam(_))),
+                    "Expected BadParam error for period <= 1, got: {:?}", result);
             } else {
-                prop_assert!(matches!(result, Err(TechalibError::InsufficientData)));
+                prop_assert!(matches!(result, Err(TechalibError::InsufficientData)),
+                    "Expected InsufficientData error for data length <= period, got: {:?}", result);
             }
         } else {
             let rsi_values = result.unwrap().values;

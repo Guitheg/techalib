@@ -5,3 +5,4 @@
 # It is recommended to check this file in to source control so that
 # everyone who runs the test benefits from these saved cases.
 cc 7f58128433cd0d40b23ec22628c58978c25e54ab94027f6ea60c16e994f8941d # shrinks to data = [0.0, 0.0, 457.5252331984413, 0.0], period = 2
+cc 3491011fff7371e04d1cf1f726613d0aa3ce6a5031a634443c7e03da92557172 # shrinks to data = [0.0], period = 1

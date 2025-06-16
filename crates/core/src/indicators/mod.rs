@@ -1,3 +1,4 @@
+pub mod atr;
 pub mod bbands;
 pub mod dema;
 pub mod ema;

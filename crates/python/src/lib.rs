@@ -1,5 +1,6 @@
 use pyo3::prelude::*;
 
+mod py_atr;
 mod py_bbands;
 mod py_dema;
 mod py_ema;
@@ -70,5 +71,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_roc::roc, m)?)?;
     m.add_function(wrap_pyfunction!(py_roc::roc_next, m)?)?;
     m.add_class::<py_roc::PyRocState>()?;
+    m.add_function(wrap_pyfunction!(py_atr::atr, m)?)?;
+    m.add_function(wrap_pyfunction!(py_atr::atr_next, m)?)?;
+    m.add_class::<py_atr::PyAtrState>()?;
     Ok(())
 }

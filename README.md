@@ -73,7 +73,7 @@ The number of supported indicators is set to increase.
 | **_Volume_**              |||
 |                           | **ad** - Chaikin A/D Line                                       | ⬜        |
 | **_Volatility_**          |||
-|                           | **atr** - Average True Range                                    | ⬜        |
+|                           | **atr** - Average True Range                                    | ✅        |
 
 ## 🤓 Contribution
 

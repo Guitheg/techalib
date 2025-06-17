@@ -53,13 +53,14 @@ use crate::traits::State;
 /// Attributes
 /// ---
 /// TODO: ATTRIBUTES
-/// - `values`: A vector of [`Float`] representing the calculated values.
+/// - `${indicator_name}`: A vector of [`Float`] representing the calculated ${indicator_name}.
 /// - `state`: A [`${IndicatorName}State`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct ${IndicatorName}Result {
     // TODO: IMPLEMENTS RESULT ATTRIBUTES
-    pub values: Vec<Float>,
+    /// The calculated ${INDICATORNAME} values
+    pub ${indicator_name}: Vec<Float>,
     /// The [`${IndicatorName}State`] state of the ${INDICATORNAME} calculation.
     pub state: ${IndicatorName}State,
 }
@@ -154,7 +155,7 @@ pub fn ${indicator_name}(
 
     Ok(${IndicatorName}Result {
         // TODO: OUTPUT AND STATES TO RESULT
-        values: output,
+        ${indicator_name}: output,
         state: ${indicator_name}_state
     })
 }

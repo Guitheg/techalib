@@ -20,7 +20,7 @@ fn generated_and_no_lookahead_midprice(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("midprice").unwrap();
 
     let high_prices_prev = &high_prices[0..last_idx];
     let low_prices_prev = &low_prices[0..last_idx];
@@ -33,7 +33,7 @@ fn generated_and_no_lookahead_midprice(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.midprice);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -81,7 +81,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
         midprice(&high_prices, &low_prices, period),
         |result: MidpriceResult| {
             assert!(
-                result.values.iter().skip(period).all(|v| v.is_finite()),
+                result.midprice.iter().skip(period).all(|v| v.is_finite()),
                 "Expected all values to be finite"
             );
         }

@@ -53,13 +53,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated T3 values.
+/// - `t3`: A vector of [`Float`] representing the calculated T3 values.
 /// - `state`: A [`T3State`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct T3Result {
     /// The calculated T3 values.
-    pub values: Vec<Float>,
+    pub t3: Vec<Float>,
     /// The [`T3State`] state of the T3 calculation.
     pub state: T3State,
 }
@@ -265,7 +265,7 @@ pub fn t3(
     let t3_state = t3_into(data, period, volume_factor, alpha, output.as_mut_slice())?;
 
     Ok(T3Result {
-        values: output,
+        t3: output,
         state: t3_state,
     })
 }

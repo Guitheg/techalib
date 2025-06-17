@@ -21,7 +21,7 @@ fn generated_and_no_lookahead_trima(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("trima").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -33,7 +33,7 @@ fn generated_and_no_lookahead_trima(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.trima);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -71,7 +71,7 @@ fn generated_with_no_lookahead_period_3_ok() {
 fn zeros_ok() {
     let input = vec![0.0; 100];
     let result = trima(&input, 30).unwrap();
-    assert!(result.values.iter().skip(29).all(|&v| v == 0.0));
+    assert!(result.trima.iter().skip(29).all(|&v| v == 0.0));
 }
 
 #[test]
@@ -123,7 +123,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(trima(&data, period), |result: TrimaResult| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.trima.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });

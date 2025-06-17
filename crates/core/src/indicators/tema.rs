@@ -56,13 +56,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated TEMA values.
+/// - `tema`: A vector of [`Float`] representing the calculated TEMA values.
 /// - `state`: A [`TemaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct TemaResult {
     /// The calculated TEMA values.
-    pub values: Vec<Float>,
+    pub tema: Vec<Float>,
     /// A [`TemaState`], which can be used to calculate the next values
     /// incrementally.
     pub state: TemaState,
@@ -173,7 +173,7 @@ pub fn tema(
     let tema_state = tema_into(data, period, alpha, &mut output)?;
 
     Ok(TemaResult {
-        values: output,
+        tema: output,
         state: tema_state,
     })
 }

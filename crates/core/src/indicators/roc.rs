@@ -53,13 +53,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated values.
+/// - `roc`: A vector of [`Float`] representing the calculated values.
 /// - `state`: A [`RocState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct RocResult {
     /// The calculated ROC values.
-    pub values: Vec<Float>,
+    pub roc: Vec<Float>,
     /// The [`RocState`] state of the ROC calculation.
     pub state: RocState,
 }
@@ -174,7 +174,7 @@ pub fn roc(data: &[Float], period: usize) -> Result<RocResult, TechalibError> {
     let roc_state = roc_into(data, period, output.as_mut_slice())?;
 
     Ok(RocResult {
-        values: output,
+        roc: output,
         state: roc_state,
     })
 }

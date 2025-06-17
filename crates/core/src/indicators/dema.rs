@@ -53,13 +53,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: The calculated DEMA values.
+/// - `dema`: The calculated DEMA values.
 /// - `state`: A [`DemaState`], which can be used to calculate the next values
 ///   incrementally.
 #[derive(Debug)]
 pub struct DemaResult {
     /// The calculated DEMA values.
-    pub values: Vec<Float>,
+    pub dema: Vec<Float>,
     /// A [`DemaState`], which can be used to calculate the next values
     /// incrementally.
     pub state: DemaState,
@@ -157,7 +157,7 @@ pub fn dema(
     let dema_state = dema_into(data, period, alpha, &mut output)?;
 
     Ok(DemaResult {
-        values: output,
+        dema: output,
         state: dema_state,
     })
 }

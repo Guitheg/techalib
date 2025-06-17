@@ -52,13 +52,13 @@ use std::collections::VecDeque;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated TRIMA values.
+/// - `trima`: A vector of [`Float`] representing the calculated TRIMA values.
 /// - `state`: A [`TrimaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct TrimaResult {
     /// The calculated TRIMA values.
-    pub values: Vec<Float>,
+    pub trima: Vec<Float>,
     /// A [`TrimaState`], which can be used to calculate
     /// the next values incrementally.
     pub state: TrimaState,
@@ -213,7 +213,7 @@ pub fn trima(data: &[Float], period: usize) -> Result<TrimaResult, TechalibError
     let mut output = vec![0.0; len];
     let trima_state = trima_into(data, period, &mut output)?;
     Ok(TrimaResult {
-        values: output,
+        trima: output,
         state: trima_state,
     })
 }

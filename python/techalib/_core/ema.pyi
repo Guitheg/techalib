@@ -14,7 +14,7 @@ class EmaState:
 
 class EmaResult(NamedTuple):
     """Result of the EMA computation"""
-    values: NDArray
+    ema: NDArray
     state: EmaState
 
 def ema(
@@ -46,7 +46,7 @@ def ema(
     -------
     EmaResult
         A named tuple containing the result of the EMA computation.
-        - values: **1-D array** of the same length as *data* containing the EMA.
+        - ema: **1-D array** of the same length as *data* containing the EMA.
         - state: **EmaState** (ema: float, period: int, alpha: float)
     """
     ...

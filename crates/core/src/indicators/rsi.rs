@@ -51,13 +51,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated RSI values.
+/// - `rsi`: A vector of [`Float`] representing the calculated RSI values.
 /// - `state`: A [`RsiState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct RsiResult {
     /// The calculated RSI values.
-    pub values: Vec<Float>,
+    pub rsi: Vec<Float>,
     /// A [`RsiState`], which can be used to calculate
     /// the next values incrementally.
     pub state: RsiState,
@@ -182,7 +182,7 @@ pub fn rsi(data: &[Float], period: usize) -> Result<RsiResult, TechalibError> {
     let mut output = vec![0.0; size];
     let rsi_state = rsi_into(data, period, output.as_mut_slice())?;
     Ok(RsiResult {
-        values: output,
+        rsi: output,
         state: rsi_state,
     })
 }

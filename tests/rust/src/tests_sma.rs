@@ -20,7 +20,7 @@ fn generated_and_no_lookahead_sma(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("sma").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -32,7 +32,7 @@ fn generated_and_no_lookahead_sma(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.sma);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -64,7 +64,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(sma(&data, period), |result: SmaResult| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.sma.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });
@@ -94,7 +94,7 @@ fn period_higher_bound() {
     let data = vec![1.0, 2.0, 3.0];
     let result = sma(&data, 3);
     assert!(result.is_ok());
-    let out = result.unwrap().values;
+    let out = result.unwrap().sma;
     assert!(out[2] == 2.0);
 }
 
@@ -171,7 +171,7 @@ proptest! {
             prop_assert!(out.is_err());
             prop_assert!(matches!(out, Err(TechalibError::DataNonFinite(_))));
         } else {
-            let out = out.unwrap().values;
+            let out = out.unwrap().sma;
             prop_assert_eq!(out.len(), input.len());
             prop_assert!(out[..window-1].iter().all(|v| v.is_nan()));
 
@@ -188,7 +188,7 @@ proptest! {
             // Linearity
             let k = 4.3;
             let scaled_input: Vec<_> = input.iter().map(|v| v * k).collect();
-            let scaled_fast = sma(&scaled_input, window).unwrap().values;
+            let scaled_fast = sma(&scaled_input, window).unwrap().sma;
 
             for (o, scaled) in out.iter().zip(scaled_fast) {
                 if o.is_nan() {

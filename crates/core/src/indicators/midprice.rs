@@ -53,13 +53,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated MIDPRICE values.
+/// - `midprice`: A vector of [`Float`] representing the calculated MIDPRICE values.
 /// - `state`: A [`MidpriceState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct MidpriceResult {
     /// The calculated MIDPRICE values.
-    pub values: Vec<Float>,
+    pub midprice: Vec<Float>,
     /// The [`MidpriceState`] state of the MIDPRICE calculation.
     pub state: MidpriceState,
 }
@@ -223,7 +223,7 @@ pub fn midprice(
     let midprice_state = midprice_into(high_prices, low_prices, period, output.as_mut_slice())?;
 
     Ok(MidpriceResult {
-        values: output,
+        midprice: output,
         state: midprice_state,
     })
 }

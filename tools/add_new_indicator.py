@@ -153,7 +153,7 @@ def add_maptypes(indicator_name: str):
         lines = f.readlines()
 
     insert_position = next((i for i, line in enumerate(lines) if line.startswith("FCT_TO_NAMEDTUPLE = {")), len(lines))
-    lines.insert(insert_position + 1, f'    "{indicator_name}": namedtuple("{indicator_name.capitalize()}Result", [... ,"state"]), #TODO: ADD OUTPUTS ARGS\n')
+    lines.insert(insert_position + 1, f'    "{indicator_name}": namedtuple("{indicator_name.capitalize()}Result", ["{indicator_name}", "state"]), #TODO: ADD OUTPUTS ARGS\n')
 
     with open(MAPTYPES_PYTHON, 'w') as f:
         f.writelines(lines)

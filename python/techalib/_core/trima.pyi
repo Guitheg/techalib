@@ -18,7 +18,7 @@ class TrimaState:
 
 class TrimaResult(NamedTuple):
     """Result of the Trima computation"""
-    values: NDArray
+    trima: NDArray
     state: TrimaState
 
 def trima(
@@ -46,10 +46,8 @@ def trima(
     -------
     TrimaResult
         A named tuple containing the result of the Trima computation.
-        - values: **NDArray** with the computed Trima values.
-        - state: **TrimaState** with (trima: float, weighted_sum: float,
-          trailing_sum: float, heading_sum: float, last_window: List[float],
-          inv_weight_sum: float, period: int).
+        - trima: **NDArray** with the computed Trima values.
+        - state: **TrimaState**
     """
     ...
 

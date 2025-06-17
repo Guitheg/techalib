@@ -52,13 +52,13 @@ use std::collections::VecDeque;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated WMA values.
+/// - `wma`: A vector of [`Float`] representing the calculated WMA values.
 /// - `state`: A [`WmaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct WmaResult {
     /// The calculated WMA values.
-    pub values: Vec<Float>,
+    pub wma: Vec<Float>,
     /// A [`WmaState`], which can be used to calculate
     /// the next values incrementally.
     pub state: WmaState,
@@ -197,7 +197,7 @@ pub fn wma(data: &[Float], period: usize) -> Result<WmaResult, TechalibError> {
     let mut output = vec![0.0; len];
     let wma_state = wma_into(data, period, &mut output)?;
     Ok(WmaResult {
-        values: output,
+        wma: output,
         state: wma_state,
     })
 }

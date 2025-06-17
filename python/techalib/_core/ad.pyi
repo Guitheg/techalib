@@ -12,7 +12,7 @@ class AdState:
 
 class AdResult(NamedTuple):
     """Result of the Ad computation"""
-    values: NDArray
+    ad: NDArray
     state: AdState
 
 def ad(
@@ -44,7 +44,7 @@ def ad(
     -------
     AdResult
         A named tuple containing the result of the Ad computation.
-        - values: NDArray
+        - ad: NDArray
             The computed values.
         - state: `AdState`
     """

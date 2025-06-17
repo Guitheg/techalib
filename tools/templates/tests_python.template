@@ -1,32 +1,33 @@
 import techalib as tb
-from numpy import testing
-import numpy as np
+# TODO: IMPLEMENTS NUMPY TEST
+def test_${indicator_name}_numpy_success(test_numpy_with_generated_data):
+    def ${indicator_name}(data):
+        return tb.${indicator_name}(data)
 
-def test_${indicator_name}_numpy_success(csv_loader):
-    # TODO: IMPLEMENTS TEST
-    df = csv_loader("${indicator_name}")
-    result = tb.${indicator_name}(np.array(df["close"].iloc[:-1]), 30)
-    final_result = tb.${indicator_name}(np.array(df["close"]), 30)
+    test_numpy_with_generated_data(
+        "${indicator_name}",
+        ${indicator_name},
+        tb.${indicator_name}_next,
+        ["close"],
+        ["${indicator_name}"]
+    )
 
-    next_state = tb.${indicator_name}_next(df["close"].iloc[-1], result.state)
-    testing.assert_allclose(result.values, final_result.values[:-1])
-    testing.assert_allclose(final_result.values, np.array(df["out"]))
-    assert(next_state.${indicator_name} == final_result.state.${indicator_name})
+# TODO: IMPLEMENTS PANDAS TEST
+def test_${indicator_name}_pandas_success(test_with_generated_data):
+    def ${indicator_name}(data):
+        return tb.${indicator_name}(data)
 
-def test_${indicator_name}_pandas_success(csv_loader):
-    # TODO: IMPLEMENTS TEST
-    df = csv_loader("${indicator_name}")
-    result = tb.${indicator_name}(df["close"].iloc[:-1], 30)
-    final_result = tb.${indicator_name}(df["close"], 30)
+    test_with_generated_data(
+        "${indicator_name}",
+        ${indicator_name},
+        tb.${indicator_name}_next,
+        ["close"],
+        ["${indicator_name}"]
+    )
 
-    next_state = tb.${indicator_name}_next(df["close"].iloc[-1], result.state)
-    testing.assert_allclose(result.values, final_result.values[:-1])
-    testing.assert_allclose(final_result.values, df["out"], atol=1e-8)
-    assert(next_state.${indicator_name} == final_result.state.${indicator_name})
-
+# TODO: IMPLEMENTS THREAD TEST
 def test_thread_${indicator_name}(thread_test):
-    # TODO: IMPLEMENTS TEST
-    def ${indicator_name}_tx_lambda(data):
-        return tb.${indicator_name}(data, 30, release_gil = True)
+    def ad_tx_lambda(data):
+        return tb.${indicator_name}(data, release_gil = True)
 
-    thread_test(${indicator_name}_tx_lambda, n_threads=4)
+    thread_test(ad_tx_lambda, n_threads=4)

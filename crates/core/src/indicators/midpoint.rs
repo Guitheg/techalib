@@ -53,13 +53,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated MIDPOINT values.
+/// - `midpoint`: A vector of [`Float`] representing the calculated MIDPOINT values.
 /// - `state`: A [`MidpointState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct MidpointResult {
     /// The calculated MIDPOINT values.
-    pub values: Vec<Float>,
+    pub midpoint: Vec<Float>,
     /// The [`MidpointState`] state of the MIDPOINT calculation.
     pub state: MidpointState,
 }
@@ -169,7 +169,7 @@ pub fn midpoint(data: &[Float], period: usize) -> Result<MidpointResult, Techali
     let midpoint_state = midpoint_into(data, period, output.as_mut_slice())?;
 
     Ok(MidpointResult {
-        values: output,
+        midpoint: output,
         state: midpoint_state,
     })
 }

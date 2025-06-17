@@ -52,13 +52,13 @@ use std::collections::VecDeque;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated SMA values.
+/// - `sma`: A vector of [`Float`] representing the calculated SMA values.
 /// - `state`: A [`SmaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct SmaResult {
     /// The calculated SMA values.
-    pub values: Vec<Float>,
+    pub sma: Vec<Float>,
     /// A [`SmaState`], which can be used to calculate
     /// the next values incrementally.
     pub state: SmaState,
@@ -167,7 +167,7 @@ pub fn sma(data: &[Float], period: usize) -> Result<SmaResult, TechalibError> {
     let mut output = vec![0.0; len];
     let sma_state = sma_into(data, period, &mut output)?;
     Ok(SmaResult {
-        values: output,
+        sma: output,
         state: sma_state,
     })
 }

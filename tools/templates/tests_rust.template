@@ -25,7 +25,7 @@ fn generated_and_no_lookahead_${indicator_name}(file_name: &str, period: usize) 
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("${indicator_name}").unwrap();
 
     let input_prev = &input[0..last_idx];
 

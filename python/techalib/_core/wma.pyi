@@ -16,7 +16,7 @@ class WmaState:
 
 class WmaResult(NamedTuple):
     """Result of the Wma computation"""
-    values: NDArray
+    wma: NDArray
     state: WmaState
 
 def wma(
@@ -43,8 +43,8 @@ def wma(
     -------
     WmaResult
         A named tuple containing the result of the Wma computation.
-        - values: **NDArray** of the same length as *data* containing the WMA.
-        - state: **WmaState** with (wma: float, period: int, period_sub: float, period_sum: float, window: List[float])
+        - wma: **NDArray** of the same length as *data* containing the WMA.
+        - state: **WmaState**
     """
     ...
 

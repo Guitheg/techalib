@@ -14,7 +14,7 @@ class RocState:
 
 class RocResult(NamedTuple):
     """Result of the Roc computation"""
-    values: NDArray
+    roc: NDArray
     state: RocState
 
 def roc(
@@ -40,7 +40,7 @@ def roc(
     -------
     RocResult
         A named tuple containing the result of the Roc computation.
-        - values: NDArray
+        - roc: NDArray
             The computed values.
         - state: `RocState`
     """

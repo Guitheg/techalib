@@ -16,7 +16,7 @@ class KamaState:
 
 class KamaResult(NamedTuple):
     """Result of the Kama computation"""
-    values: NDArray
+    kama: NDArray
     state: KamaState
 
 def kama(
@@ -42,7 +42,7 @@ def kama(
     -------
     KamaResult
         A named tuple containing the result of the Kama computation.
-        - values: **NDArray** with the computed Kama values.
+        - kama: **NDArray** with the computed Kama values.
         - state: `KamaState`
     """
     ...

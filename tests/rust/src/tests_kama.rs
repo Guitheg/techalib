@@ -19,7 +19,7 @@ fn generated_and_no_lookahead_kama(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("kama").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -31,7 +31,7 @@ fn generated_and_no_lookahead_kama(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.kama);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -64,7 +64,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(kama(&data, period), |result: KamaResult| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.kama.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });

@@ -16,7 +16,7 @@ class DemaState:
 
 class DemaResult(NamedTuple):
     """Result of the Dema computation"""
-    values: NDArray
+    dema: NDArray
     state: DemaState
 
 def dema(
@@ -47,7 +47,7 @@ def dema(
     -------
     DemaResult
         A named tuple containing the result of the Dema computation.
-        - values: **NDArray** of the same length as *data* containing the Dema values.
+        - dema: **NDArray** of the same length as *data* containing the Dema values.
         - state: **DemaState** with (dema: float, ema_1: float, ema_2: float, period: int, alpha: float)
     """
     ...

@@ -17,7 +17,7 @@ class TemaState:
 
 class TemaResult(NamedTuple):
     """Result of the Tema computation"""
-    values: NDArray
+    tema: NDArray
     state: TemaState
 
 def tema(
@@ -48,8 +48,8 @@ def tema(
     -------
     TemaResult
         A named tuple containing the result of the Tema computation.
-        - values: **NDArray** of the same length as *data* containing the Tema values.
-        - state: **TemaState** with (tema: float, ema_1: float, ema_2: float, ema_3: float, period: int, alpha: float)
+        - tema: **NDArray** of the same length as *data* containing the Tema values.
+        - state: **TemaState**
     """
     ...
 

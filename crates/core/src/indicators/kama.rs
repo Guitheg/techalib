@@ -61,13 +61,13 @@ const SC_DELTA: Float = (2.0 / (FAST_PERIOD + 1.0)) - SC_SLOW;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] containing the calculated KAMA values.
+/// - `kama`: A vector of [`Float`] containing the calculated KAMA values.
 /// - `state`: A [`KamaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct KamaResult {
     /// The calculated KAMA values.
-    pub values: Vec<Float>,
+    pub kama: Vec<Float>,
     /// The [`KamaState`] state of the KAMA calculation.
     pub state: KamaState,
 }
@@ -194,7 +194,7 @@ pub fn kama(data: &[Float], period: usize) -> Result<KamaResult, TechalibError> 
     let kama_state = kama_into(data, period, output.as_mut_slice())?;
 
     Ok(KamaResult {
-        values: output,
+        kama: output,
         state: kama_state,
     })
 }

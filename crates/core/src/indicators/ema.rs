@@ -54,13 +54,13 @@ const DEFAULT_SMOOTHING: Float = 2.0;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated EMA values.
+/// - `ema`: A vector of [`Float`] representing the calculated EMA values.
 /// - `state`: A [`EmaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct EmaResult {
     /// The calculated EMA values.
-    pub values: Vec<Float>,
+    pub ema: Vec<Float>,
     /// A [`EmaState`], which can be used to calculate the next values
     /// incrementally.
     pub state: EmaState,
@@ -145,7 +145,7 @@ pub fn ema(
     let mut output = vec![0.0; data.len()];
     let ema_state = ema_into(data, period, alpha, &mut output)?;
     Ok(EmaResult {
-        values: output,
+        ema: output,
         state: ema_state,
     })
 }

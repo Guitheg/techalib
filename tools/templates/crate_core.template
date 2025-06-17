@@ -73,7 +73,7 @@ pub struct ${IndicatorName}Result {
 /// Attributes
 /// ---
 /// **Last outputs values**
-/// - `${indicator_name}`: The last calculated value.
+/// - `prev_${indicator_name}`: The last calculated value.
 ///
 /// **State values**
 /// TODO: STATE ATTRIBUTES
@@ -85,7 +85,7 @@ pub struct ${IndicatorName}State {
     // TODO: IMPLEMENTS OUTPUTS ATTRIBUTES
     // Outputs
     /// The last calculated value.
-    pub ${indicator_name}: Float,
+    pub prev_${indicator_name}: Float,
 
     // TODO: IMPLEMENTS STATE ATTRIBUTES
     // State values

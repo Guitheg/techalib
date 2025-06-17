@@ -15,14 +15,17 @@ THREAD_TEST_TOL: float = float(os.getenv("THREAD_TEST_TOL", "0.5"))
 @pytest.fixture
 def test_with_generated_data(csv_loader) -> Callable[[Callable], None]:
     def _test_with_generated_data(
-            filepath: str,
-            tx_fct: Callable,
-            tx_next_fct: Callable,
-            input_names: list,
-            output_names: list,
-            rtol: float = 1e-7,
-            atol: float = 0.0,
-        ) -> None:
+        filepath: str,
+        tx_fct: Callable,
+        tx_next_fct: Callable,
+        input_names: list,
+        output_names: list,
+        state_out_names: list = None,
+        rtol: float = 1e-7,
+        atol: float = 0.0,
+    ) -> None:
+        if state_out_names is None:
+            state_out_names = output_names
         df = csv_loader(filepath)
         next_count = 10
         prev_inputs = [df[name].iloc[:-next_count] for name in input_names]
@@ -36,23 +39,26 @@ def test_with_generated_data(csv_loader) -> Callable[[Callable], None]:
         for i in range(next_count):
             next_inputs = [df[name].iloc[-next_count + i] for name in input_names]
             state = tx_next_fct(*next_inputs, state)
-            for name in output_names:
-                out = getattr(state, name, None)
-                expected = df[name].iloc[-next_count + i]
+            for state_out_name, out_name in zip(state_out_names, output_names):
+                out = getattr(state, state_out_name, None)
+                expected = df[out_name].iloc[-next_count + i]
                 testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
     return _test_with_generated_data
 
 @pytest.fixture
 def test_numpy_with_generated_data(csv_loader) -> Callable[[Callable], None]:
     def _test_numpy_with_generated_data(
-            filepath: str,
-            tx_fct: Callable,
-            tx_next_fct: Callable,
-            input_names: list,
-            output_names: list,
-            rtol: float = 1e-7,
-            atol: float = 0.0,
-        ) -> None:
+        filepath: str,
+        tx_fct: Callable,
+        tx_next_fct: Callable,
+        input_names: list,
+        output_names: list,
+        state_out_names: list = None,
+        rtol: float = 1e-7,
+        atol: float = 0.0,
+    ) -> None:
+        if state_out_names is None:
+            state_out_names = output_names
         df = csv_loader(filepath)
         next_count = 10
         prev_inputs = [np.array(df[name].iloc[:-next_count]) for name in input_names]
@@ -66,9 +72,9 @@ def test_numpy_with_generated_data(csv_loader) -> Callable[[Callable], None]:
         for i in range(next_count):
             next_inputs = [np.array(df[name].iloc[-next_count + i]) for name in input_names]
             state = tx_next_fct(*next_inputs, state)
-            for name in output_names:
-                out = getattr(state, name, None)
-                expected = np.array(df[name].iloc[-next_count + i])
+            for state_out_name, out_name in zip(state_out_names, output_names):
+                out = getattr(state, state_out_name, None)
+                expected = df[out_name].iloc[-next_count + i]
                 testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
     return _test_numpy_with_generated_data
 

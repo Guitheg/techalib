@@ -43,17 +43,22 @@ use techalib::types::Float;
 #[derive(Debug, Clone)]
 pub struct Py${IndicatorName}State {
     // TODO: DEFINE ATTRIBUTES
-    // #[pyo3(get)]
-    // pub ...
+    #[pyo3(get)]
+    pub prev_${indicator_name}: Float,
+    #[pyo3(get)]
+    pub period: usize
 }
 #[pymethods]
 impl Py${IndicatorName}State {
     #[new]
     pub fn new(
-        // TODO: DEFINE ARGUMENTS FOR NEW
+        prev_${indicator_name}: Float,
+        period: usize
     ) -> Self {
         Py${IndicatorName}State {
             // TODO: STATE ATTRIBUTES
+            prev_${indicator_name},
+            period
         }
     }
     #[getter]

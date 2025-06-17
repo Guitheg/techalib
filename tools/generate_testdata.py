@@ -38,6 +38,10 @@ CONFIG_DICT = {
     "ROC": Configuration(talib, "ROC", ["close"], dict(timeperiod=10), ["roc"]),
     "ATR": Configuration(talib, "ATR", ["high", "low", "close"], dict(timeperiod=14), ["atr"]),
     "AD": Configuration(talib, "AD", ["high", "low", "close", "volume"], dict(), ["ad"]),
+    "MINUS_DM": Configuration(talib, "MINUS_DM", ["high", "low"], dict(timeperiod=14), ["minus_dm"]),
+    "PLUS_DM": Configuration(talib, "PLUS_DM", ["high", "low"], dict(timeperiod=14), ["plus_dm"]),
+    "MINUS_DI": Configuration(talib, "MINUS_DI", ["high", "low", "close"], dict(timeperiod=14), ["minus_di"]),
+    "PLUS_DI": Configuration(talib, "PLUS_DI", ["high", "low", "close"], dict(timeperiod=14), ["plus_di"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):

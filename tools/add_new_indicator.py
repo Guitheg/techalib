@@ -47,6 +47,7 @@ def create_from_template(
     indicator_camel_case: str = None,
     contributor_name: str = DEFAULT_CONTRIBUTOR_NAME
 ):
+    logger.info(f"🔧 Creating templates for {indicator_name} (camel_case: {indicator_camel_case}, author: {contributor_name})")
     for template_file, target_file in TEMPLATES_TO_FILE.items():
         template_path = TEMPLATE_DIR / template_file
         target_path = Path(__file__).parent.parent / target_file.format(name=indicator_name)
@@ -206,7 +207,11 @@ def main():
     args = parse_args()
     logger.info(f"✨ Adding new indicator template: {args.name}")
     contributor_name = get_contributor_name()
-    create_from_template(args.name, args.camel_case, contributor_name)
+    create_from_template(
+        args.name,
+        indicator_camel_case = args.camel_case,
+        contributor_name = contributor_name
+    )
     add_to_bench_timeit(args.name)
     add_to_python_stub_init(args.name)
     add_to_fuzz_tests_cargo(args.name)

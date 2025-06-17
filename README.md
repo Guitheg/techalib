@@ -62,7 +62,7 @@ The number of supported indicators is set to increase.
 |                           | **aroon** - Aroon                                               | ⬜        |
 |                           | **dx** - Directional Movement Index                             | ⬜        |
 |                           | **minus_di** - Minus Directional Indicator                      | ⬜        |
-|                           | **minus_dm** - Minus Directional Movement                       | ⬜        |
+|                           | **minus_dm** - Minus Directional Movement                       | ✅        |
 |                           | **plus_di** - Plus Directional Indicator                        | ⬜        |
 |                           | **plus_dm** - Plus Directional Movement                         | ⬜        |
 |                           | **roc** - Rate of change                                        | ✅        |

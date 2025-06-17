@@ -3,6 +3,7 @@ from typing import NamedTuple, Optional
 from numpy.typing import NDArray
 from typing import Tuple
 
+from .minus_dm import *
 from .ad import *
 from .atr import *
 from .roc import *

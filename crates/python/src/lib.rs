@@ -10,6 +10,7 @@ mod py_macd;
 mod py_midpoint;
 mod py_midprice;
 mod py_minus_dm;
+mod py_plus_dm;
 mod py_roc;
 mod py_rsi;
 mod py_sma;
@@ -82,5 +83,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_minus_dm::minus_dm, m)?)?;
     m.add_function(wrap_pyfunction!(py_minus_dm::minus_dm_next, m)?)?;
     m.add_class::<py_minus_dm::PyMinusDmState>()?;
+    m.add_function(wrap_pyfunction!(py_plus_dm::plus_dm, m)?)?;
+    m.add_function(wrap_pyfunction!(py_plus_dm::plus_dm_next, m)?)?;
+    m.add_class::<py_plus_dm::PyPlusDmState>()?;
     Ok(())
 }

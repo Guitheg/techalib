@@ -72,8 +72,8 @@ pub struct ${IndicatorName}Result {
 ///
 /// Attributes
 /// ---
-/// **Last outputs values**
-/// - `prev_${indicator_name}`: The last calculated value.
+/// **Previous outputs values**
+/// - `prev_${indicator_name}`: The previous calculated value.
 ///
 /// **State values**
 /// TODO: STATE ATTRIBUTES
@@ -84,7 +84,7 @@ pub struct ${IndicatorName}Result {
 pub struct ${IndicatorName}State {
     // TODO: IMPLEMENTS OUTPUTS ATTRIBUTES
     // Outputs
-    /// The last calculated value.
+    /// The previous calculated value.
     pub prev_${indicator_name}: Float,
 
     // TODO: IMPLEMENTS STATE ATTRIBUTES
@@ -215,7 +215,7 @@ pub fn ${indicator_name}_into(
     }
 
     Ok(${IndicatorName}State {
-        ${indicator_name}: output[len-1],
+        prev_${indicator_name}: output[len-1],
         period
     })
 }

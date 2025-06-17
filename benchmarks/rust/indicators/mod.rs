@@ -8,6 +8,7 @@ pub(crate) mod bench_macd;
 pub(crate) mod bench_midpoint;
 pub(crate) mod bench_midprice;
 pub(crate) mod bench_minus_dm;
+pub(crate) mod bench_plus_dm;
 pub(crate) mod bench_roc;
 pub(crate) mod bench_rsi;
 pub(crate) mod bench_sma;

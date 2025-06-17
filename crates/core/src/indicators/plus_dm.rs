@@ -35,59 +35,59 @@
 */
 
 /*
-    Inspired by TA-LIB MINUS_DM implementation
+    Inspired by TA-LIB PLUS_DM implementation
 */
 
-//! Minus Directional Movement (MINUS_DM) implementation
+//! Plus Directional Movement (PLUS_DM) implementation
 
 use crate::errors::TechalibError;
 use crate::traits::State;
 use crate::types::Float;
 
-/// MINUS_DM calculation result
+/// PLUS_DM calculation result
 /// ---
-/// This struct holds the result and the state ([`MinusDmState`])
+/// This struct holds the result and the state ([`PlusDmState`])
 /// of the calculation.
 ///
 /// Attributes
 /// ---
-/// - `minus_dm`: A vector of [`Float`] representing the calculated minus_dm.
-/// - `state`: A [`MinusDmState`], which can be used to calculate
+/// - `plus_dm`: A vector of [`Float`] representing the calculated plus_dm.
+/// - `state`: A [`PlusDmState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
-pub struct MinusDmResult {
-    /// The calculated MINUS_DM values
-    pub minus_dm: Vec<Float>,
-    /// The [`MinusDmState`] state of the MINUS_DM calculation.
-    pub state: MinusDmState,
+pub struct PlusDmResult {
+    /// The calculated PLUS_DM values
+    pub plus_dm: Vec<Float>,
+    /// The [`PlusDmState`] state of the PLUS_DM calculation.
+    pub state: PlusDmState,
 }
 
-/// MINUS_DM calculation state
+/// PLUS_DM calculation state
 /// ---
 /// This struct holds the state of the calculation.
 /// It is used to calculate the next values in a incremental way.
 ///
 /// Attributes
 /// ---
-/// **Last outputs values**
-/// - `prev_minus_dm`: The last calculated value.
+/// **Previous outputs values**
+/// - `prev_plus_dm`: The previous calculated value.
 ///
 /// **State values**
-/// - `prev_high`: The last high price.
-/// - `prev_low`: The last low price.
+/// - `prev_high`: The previous high value.
+/// - `prev_low`: The previous low value.
 ///
 /// **Parameters**
 /// - `period`: The period used for the calculation.
 #[derive(Debug, Clone, Copy)]
-pub struct MinusDmState {
+pub struct PlusDmState {
     // Outputs
     /// The previous calculated value.
-    pub prev_minus_dm: Float,
+    pub prev_plus_dm: Float,
 
     // State values
-    /// The previous high price.
+    /// The previous high value.
     pub prev_high: Float,
-    /// The previous low price.
+    /// The previous low value.
     pub prev_low: Float,
 
     // Parameters
@@ -95,25 +95,25 @@ pub struct MinusDmState {
     pub period: usize,
 }
 
-/// MINUS_DM sample
+/// PLUS_DM sample
 /// ---
-/// This struct represents a sample for the MINUS_DM calculation.
+/// This struct represents a sample for the PLUS_DM calculation.
 /// It contains the high and low prices of the sample.
 #[derive(Debug, Clone, Copy)]
-pub struct MinusDmSample {
+pub struct PlusDmSample {
     /// The current high price
     pub high: Float,
     /// The current low price
     pub low: Float,
 }
 
-impl State<&MinusDmSample> for MinusDmState {
-    /// Update the [`MinusDmState`] with a new sample
+impl State<&PlusDmSample> for PlusDmState {
+    /// Update the [`PlusDmState`] with a new sample
     ///
     /// Input Arguments
     /// ---
-    /// - `sample`: The new input to update the MINUS_DM state
-    fn update(&mut self, sample: &MinusDmSample) -> Result<(), TechalibError> {
+    /// - `sample`: The new input to update the PLUS_DM state
+    fn update(&mut self, sample: &PlusDmSample) -> Result<(), TechalibError> {
         TechalibError::check_finite(sample.high, "sample.high")?;
         TechalibError::check_finite(sample.low, "sample.low")?;
         if self.period < 1 {
@@ -126,25 +126,25 @@ impl State<&MinusDmSample> for MinusDmState {
         TechalibError::check_finite(self.prev_low, "self.prev_low")?;
 
         if self.period == 1 {
-            let new_minus_dm =
-                raw_minus_dm_unchecked(sample.high, sample.low, self.prev_high, self.prev_low);
-            TechalibError::check_overflow(new_minus_dm)?;
-            self.prev_minus_dm = new_minus_dm;
+            let new_plus_dm =
+                raw_plus_dm_unchecked(sample.high, sample.low, self.prev_high, self.prev_low);
+            TechalibError::check_overflow(new_plus_dm)?;
+            self.prev_plus_dm = new_plus_dm;
             self.prev_high = sample.high;
             self.prev_low = sample.low;
         } else {
             let inv_period = 1.0 / self.period as Float;
-            let new_minus_dm = self.prev_minus_dm
-                + minus_dm_next_unchecked(
+            let new_plus_dm = self.prev_plus_dm
+                + plus_dm_next_unchecked(
                     sample.high,
                     sample.low,
                     self.prev_high,
                     self.prev_low,
-                    self.prev_minus_dm,
+                    self.prev_plus_dm,
                     inv_period,
                 );
-            TechalibError::check_overflow(new_minus_dm)?;
-            self.prev_minus_dm = new_minus_dm;
+            TechalibError::check_overflow(new_plus_dm)?;
+            self.prev_plus_dm = new_plus_dm;
             self.prev_high = sample.high;
             self.prev_low = sample.low;
         }
@@ -153,7 +153,7 @@ impl State<&MinusDmSample> for MinusDmState {
     }
 }
 
-/// Lookback period for MINUS_DM calculation
+/// Lookback period for PLUS_DM calculation
 /// ---
 /// With `n = lookback_from_period(period)`,
 /// the `n-1` first values that will be return will be `NaN`
@@ -169,9 +169,9 @@ pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
     Ok(period - 1)
 }
 
-/// Calculation of the MINUS_DM function
+/// Calculation of the PLUS_DM function
 /// ---
-/// It returns a [`MinusDmResult`]
+/// It returns a [`PlusDmResult`]
 ///
 /// Input Arguments
 /// ---
@@ -181,27 +181,27 @@ pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
 ///
 /// Returns
 /// ---
-/// A `Result` containing a [`MinusDmResult`],
+/// A `Result` containing a [`PlusDmResult`],
 /// or a [`TechalibError`] error if the calculation fails.
-pub fn minus_dm(
+pub fn plus_dm(
     high: &[Float],
     low: &[Float],
     period: usize,
-) -> Result<MinusDmResult, TechalibError> {
+) -> Result<PlusDmResult, TechalibError> {
     let mut output = vec![0.0; high.len()];
 
-    let minus_dm_state = minus_dm_into(high, low, period, output.as_mut_slice())?;
+    let plus_dm_state = plus_dm_into(high, low, period, output.as_mut_slice())?;
 
-    Ok(MinusDmResult {
-        minus_dm: output,
-        state: minus_dm_state,
+    Ok(PlusDmResult {
+        plus_dm: output,
+        state: plus_dm_state,
     })
 }
 
-/// Calculation of the MINUS_DM function
+/// Calculation of the PLUS_DM function
 /// ---
 /// It stores the results in the provided output arrays and
-/// return the state [`MinusDmState`].
+/// return the state [`PlusDmState`].
 ///
 /// Input Arguments
 /// ---
@@ -215,14 +215,14 @@ pub fn minus_dm(
 ///
 /// Returns
 /// ---
-/// A `Result` containing a [`MinusDmState`],
+/// A `Result` containing a [`PlusDmState`],
 /// or a [`TechalibError`] error if the calculation fails.
-pub fn minus_dm_into(
+pub fn plus_dm_into(
     high: &[Float],
     low: &[Float],
     period: usize,
     output: &mut [Float],
-) -> Result<MinusDmState, TechalibError> {
+) -> Result<PlusDmState, TechalibError> {
     TechalibError::check_same_length(("output", output), ("high", high))?;
     TechalibError::check_same_length(("output", output), ("low", low))?;
 
@@ -241,39 +241,39 @@ pub fn minus_dm_into(
         for idx in 1..len {
             TechalibError::check_finite_at(idx, high)?;
             TechalibError::check_finite_at(idx, low)?;
-            output[idx] = raw_minus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
+            output[idx] = raw_plus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
         }
-        return Ok(MinusDmState {
-            prev_minus_dm: output[len - 1],
+        return Ok(PlusDmState {
+            prev_plus_dm: output[len - 1],
             prev_high: high[len - 1],
             prev_low: low[len - 1],
             period,
         });
     }
 
-    let mut minus_dm = init_minus_dm_unchecked(high, low, lookback, output)?;
-    output[lookback] = minus_dm;
+    let mut plus_dm = init_plus_dm_unchecked(high, low, lookback, output)?;
+    output[lookback] = plus_dm;
     TechalibError::check_overflow_at(lookback, output)?;
 
     for idx in lookback + 1..len {
         TechalibError::check_finite_at(idx, high)?;
         TechalibError::check_finite_at(idx, low)?;
 
-        minus_dm += minus_dm_next_unchecked(
+        plus_dm += plus_dm_next_unchecked(
             high[idx],
             low[idx],
             high[idx - 1],
             low[idx - 1],
-            minus_dm,
+            plus_dm,
             inv_period,
         );
 
-        output[idx] = minus_dm;
+        output[idx] = plus_dm;
         TechalibError::check_overflow_at(idx, output)?;
     }
 
-    Ok(MinusDmState {
-        prev_minus_dm: output[len - 1],
+    Ok(PlusDmState {
+        prev_plus_dm: output[len - 1],
         prev_high: high[len - 1],
         prev_low: low[len - 1],
         period,
@@ -281,7 +281,7 @@ pub fn minus_dm_into(
 }
 
 #[inline(always)]
-fn init_minus_dm_unchecked(
+fn init_plus_dm_unchecked(
     high: &[Float],
     low: &[Float],
     lookback: usize,
@@ -294,12 +294,12 @@ fn init_minus_dm_unchecked(
     for idx in 1..lookback {
         TechalibError::check_finite_at(idx, high)?;
         TechalibError::check_finite_at(idx, low)?;
-        sum += raw_minus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
+        sum += raw_plus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
         output[idx] = Float::NAN;
     }
     TechalibError::check_finite_at(lookback, high)?;
     TechalibError::check_finite_at(lookback, low)?;
-    sum += raw_minus_dm_unchecked(
+    sum += raw_plus_dm_unchecked(
         high[lookback],
         low[lookback],
         high[lookback - 1],
@@ -309,22 +309,22 @@ fn init_minus_dm_unchecked(
 }
 
 #[inline(always)]
-fn minus_dm_next_unchecked(
+fn plus_dm_next_unchecked(
     high: Float,
     low: Float,
     prev_high: Float,
     prev_low: Float,
-    prev_minus_dm: Float,
+    prev_plus_dm: Float,
     inv_period: Float,
 ) -> Float {
-    -prev_minus_dm * inv_period + raw_minus_dm_unchecked(high, low, prev_high, prev_low)
+    -prev_plus_dm * inv_period + raw_plus_dm_unchecked(high, low, prev_high, prev_low)
 }
 
 #[inline(always)]
-fn raw_minus_dm_unchecked(high: Float, low: Float, prev_high: Float, prev_low: Float) -> Float {
-    let minus_delta = prev_low - low;
-    if minus_delta > 0.0 && (high - prev_high) < minus_delta {
-        minus_delta
+fn raw_plus_dm_unchecked(high: Float, low: Float, prev_high: Float, prev_low: Float) -> Float {
+    let plus_delta = high - prev_high;
+    if plus_delta > 0.0 && (prev_low - low) < plus_delta {
+        plus_delta
     } else {
         0.0
     }

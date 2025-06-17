@@ -130,3 +130,10 @@ path = "fuzz_targets/fuzz_minus_dm.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "plus_dm"
+path = "fuzz_targets/fuzz_plus_dm.rs"
+test = false
+doc = false
+bench = false

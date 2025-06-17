@@ -66,7 +66,7 @@ impl PySmaState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!("SmaState(sma={}, period={})", self.sma, self.period)
+        format!("{:?}", self)
     }
 }
 impl From<SmaState> for PySmaState {

@@ -35,7 +35,7 @@
 
 use numpy::{IntoPyArray, PyArray1, PyArrayMethods, PyReadonlyArray1, PyUntypedArrayMethods};
 use pyo3::{exceptions::PyValueError, pyclass, pyfunction, pymethods, Py, PyResult, Python};
-use techalib::indicators::ema::{ema_into, period_to_alpha, EmaState};
+use techalib::indicators::ema::{ema_into, EmaState};
 use techalib::traits::State;
 use techalib::types::Float;
 
@@ -47,12 +47,12 @@ pub struct PyEmaState {
     #[pyo3(get)]
     pub period: usize,
     #[pyo3(get)]
-    pub alpha: Option<Float>,
+    pub alpha: Float,
 }
 #[pymethods]
 impl PyEmaState {
     #[new]
-    pub fn new(ema: Float, period: usize, alpha: Option<Float>) -> Self {
+    pub fn new(ema: Float, period: usize, alpha: Float) -> Self {
         PyEmaState { ema, period, alpha }
     }
     #[getter]
@@ -61,10 +61,7 @@ impl PyEmaState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "EmaState(ema={}, period={}, alpha={:?})",
-            self.ema, self.period, self.alpha
-        )
+        format!("{:?}", self)
     }
 }
 impl From<EmaState> for PyEmaState {
@@ -72,7 +69,7 @@ impl From<EmaState> for PyEmaState {
         PyEmaState {
             ema: state.ema,
             period: state.period,
-            alpha: state.alpha.into(),
+            alpha: state.alpha,
         }
     }
 }
@@ -82,9 +79,7 @@ impl From<PyEmaState> for EmaState {
         EmaState {
             ema: py_state.ema,
             period: py_state.period,
-            alpha: py_state.alpha.unwrap_or(
-                period_to_alpha(py_state.period, None).unwrap_or(2.0 / py_state.period as Float),
-            ),
+            alpha: py_state.alpha,
         }
     }
 }

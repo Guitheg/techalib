@@ -116,11 +116,7 @@ impl PyT3State {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "T3State(t3={}, ema1={}, ema2={}, ema3={}, ema4={}, ema5={}, ema6={}, period={}, alpha={}, vfactor={}, c1={}, c2={}, c3={}, c4={})",
-            self.t3, self.ema1, self.ema2, self.ema3, self.ema4, self.ema5, self.ema6,
-            self.period, self.alpha, self.vfactor, self.c1, self.c2, self.c3, self.c4
-        )
+        format!("{:?}", self)
     }
 }
 impl From<T3State> for PyT3State {

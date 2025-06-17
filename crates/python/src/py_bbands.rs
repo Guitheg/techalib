@@ -107,10 +107,7 @@ impl PyBBandsState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "BBandsState(upper: {}, middle: {}, lower: {}, mean_sq: {}, window: {:?}, period: {}, std_up: {}, std_down: {}, ma_type: {:?})",
-            self.upper, self.middle, self.lower, self.mean_sq, self.window, self.period, self.std_up, self.std_down, self.ma_type
-        )
+        format!("{:?}", self)
     }
 }
 impl From<BBandsState> for PyBBandsState {

@@ -78,7 +78,7 @@ impl PyWmaState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!("WmaState(wma={}, period={})", self.wma, self.period)
+        format!("{:?}", self)
     }
 }
 impl From<WmaState> for PyWmaState {

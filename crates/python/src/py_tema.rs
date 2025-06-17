@@ -81,10 +81,7 @@ impl PyTemaState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "TemaState(tema={}, ema_1={}, ema_2={}, ema_3={}, period={}, alpha={:?})",
-            self.tema, self.ema_1, self.ema_2, self.ema_3, self.period, self.alpha
-        )
+        format!("{:?}", self)
     }
 }
 impl From<TemaState> for PyTemaState {

@@ -79,10 +79,7 @@ impl PyRsiState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "RsiState(rsi={}, prev_value={}, avg_gain={}, avg_loss={}, period={})",
-            self.rsi, self.prev_value, self.avg_gain, self.avg_loss, self.period
-        )
+        format!("{:?}", self)
     }
 }
 

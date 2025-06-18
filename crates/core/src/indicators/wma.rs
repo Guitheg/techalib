@@ -155,9 +155,7 @@ impl State<Float> for WmaState {
             inv_weight_sum,
         );
 
-        if !wma.is_finite() {
-            return Err(TechalibError::Overflow(0, wma));
-        }
+        check_finite!(wma);
 
         self.wma = wma;
         self.period_sub = new_period_sub;
@@ -175,7 +173,7 @@ impl State<Float> for WmaState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(period)
 }
 
@@ -225,8 +223,8 @@ pub fn wma_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<WmaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
-    TechalibError::check_period(period)?;
+    check_param_eq!(data.len(), output.len());
+    check_param_gte!(period, 2);
     let len = data.len();
     let inv_weight_sum = inv_weight_sum_linear(period);
     if len <= period {
@@ -237,7 +235,7 @@ pub fn wma_into(
         init_wma_unchecked(data, period, inv_weight_sum, output)?;
 
     for idx in period..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         (output[idx], period_sub, period_sum) = wma_next_unchecked(
             data[idx],
             data[idx - period],
@@ -246,7 +244,7 @@ pub fn wma_into(
             period_sum,
             inv_weight_sum,
         );
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
     Ok(WmaState {
         wma: output[len - 1],
@@ -297,9 +295,7 @@ fn init_wma_unchecked(
         output[idx] = Float::NAN;
     }
     output[period - 1] = (period_sum + period_sub) * inv_weight_sum;
-    if !output[period - 1].is_finite() {
-        return Err(TechalibError::Overflow(period - 1, output[period - 1]));
-    }
+    check_finite_at!(period - 1, output);
     Ok((period_sub, period_sum))
 }
 

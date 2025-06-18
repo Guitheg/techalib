@@ -1,5 +1,3 @@
-use crate::types::Float;
-
 /// Techalib error types
 /// ---
 /// This enum defines the various error types that can occur
@@ -20,69 +18,100 @@ pub enum TechalibError {
     InsufficientData,
     /// Indicates that a data point is not finite (e.g., NaN or Infinity).
     DataNonFinite(String),
-    /// Indicates that an overflow occurred at a specific index.
-    Overflow(usize, Float),
     /// Indicates that a feature or function is not yet implemented.
     NotImplementedYet,
 }
 
-impl TechalibError {
-    pub(crate) fn check_period(period: usize) -> Result<(), TechalibError> {
-        if period < 2 {
-            Err(TechalibError::BadParam(format!(
-                "Period must be greater than 1, got {}",
-                period
-            )))
-        } else {
-            Ok(())
-        }
-    }
-
-    pub(crate) fn check_same_length(
-        data1: (&str, &[Float]),
-        data2: (&str, &[Float]),
-    ) -> Result<(), TechalibError> {
-        if data1.1.len() != data2.1.len() {
-            Err(TechalibError::BadParam(format!(
-                "Data lengths must match: ({} length = {}) and ({} length = {})",
-                data1.0,
-                data1.1.len(),
-                data2.0,
-                data2.1.len()
-            )))
-        } else {
-            Ok(())
-        }
-    }
-
-    pub(crate) fn check_finite_at(index: usize, data: &[Float]) -> Result<(), TechalibError> {
-        if !(data[index].is_finite()) {
-            Err(TechalibError::DataNonFinite(format!(
-                "data[{}] = {:?}",
-                index, data[index]
-            )))
-        } else {
-            Ok(())
-        }
-    }
-
-    pub(crate) fn check_finite(value: Float, name: &str) -> Result<(), TechalibError> {
-        if !(value.is_finite()) {
-            Err(TechalibError::DataNonFinite(format!(
+#[macro_use]
+pub(crate) mod macros {
+    macro_rules! check_finite {
+        ($value:expr) => {
+            if !($value.is_finite()) {
+                return Err(TechalibError::DataNonFinite(format!(
+                    "{} = {:?}",
+                    stringify!($value),
+                    $value
+                )));
+            }
+        };
+        ($($value:expr),+) => {
+            $(
+            if !($value.is_finite()) {
+                return Err(TechalibError::DataNonFinite(format!(
                 "{} = {:?}",
-                name, value
-            )))
-        } else {
-            Ok(())
-        }
+                stringify!($value),
+                $value
+                )));
+            }
+            )+
+        };
     }
 
-    pub(crate) fn check_overflow_at(index: usize, data: &[Float]) -> Result<(), TechalibError> {
-        TechalibError::check_finite_at(index, data)
-            .map_err(|_| TechalibError::Overflow(index, data[index]))
+    macro_rules! check_finite_at {
+        ($index:expr, $data:expr) => {
+            if !($data[$index].is_finite()) {
+                return Err(TechalibError::DataNonFinite(format!(
+                    "{}[{}] = {:?}",
+                    stringify!($data),
+                    $index,
+                    $data[$index]
+                )));
+            }
+        };
+        ($index:expr, $($data:expr),+) => {
+            $(
+            if !($data[$index].is_finite()) {
+            return Err(TechalibError::DataNonFinite(format!(
+                "{}[{}] = {:?}",
+                stringify!($data),
+                $index,
+                $data[$index]
+            )));
+            }
+            )+
+        };
     }
 
-    pub(crate) fn check_overflow(value: Float) -> Result<(), TechalibError> {
-        TechalibError::check_overflow_at(0, &[value])
+    macro_rules! check_param_eq {
+        ($param:expr, $value:expr) => {
+            if $param != $value {
+                return Err(TechalibError::BadParam(format!(
+                    "{} must be equal to {}, got {} != {}",
+                    stringify!($param),
+                    stringify!($value),
+                    $value,
+                    $param
+                )));
+            }
+        };
+    }
+
+    macro_rules! check_param_gte {
+        ($param:expr, $value:expr) => {
+            if $param < $value {
+                return Err(TechalibError::BadParam(format!(
+                    "{} must be greater than or equal to {}, got {} < {}",
+                    stringify!($param),
+                    stringify!($value),
+                    $value,
+                    $param
+                )));
+            }
+        };
+    }
+
+    macro_rules! check_vec_finite {
+        ($vec:expr) => {
+            for (i, &v) in $vec.iter().enumerate() {
+                if !(v.is_finite()) {
+                    return Err(TechalibError::DataNonFinite(format!(
+                        "{}[{}] = {:?}",
+                        stringify!($vec),
+                        i,
+                        v
+                    )));
+                }
+            }
+        };
     }
 }

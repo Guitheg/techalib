@@ -117,8 +117,8 @@ impl State<&MidpriceSample> for MidpriceState {
     /// - `sample`: The new input [`MidpriceSample`] to update the MIDPRICE state.
     ///   It contains the high and low prices of the sample.
     fn update(&mut self, sample: &MidpriceSample) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample.high, "high")?;
-        TechalibError::check_finite(sample.low, "low")?;
+        check_finite!(sample.high);
+        check_finite!(sample.low);
 
         if self.period <= 1 {
             return Err(TechalibError::BadParam(format!(
@@ -174,7 +174,7 @@ impl State<&MidpriceSample> for MidpriceState {
 
         let mid_price =
             midprice_next_unchecked(high_window.make_contiguous(), low_window.make_contiguous());
-        TechalibError::check_overflow(mid_price)?;
+        check_finite!(mid_price);
         self.last_high_window = high_window;
         self.last_low_window = low_window;
         self.midprice = mid_price;
@@ -253,8 +253,8 @@ pub fn midprice_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<MidpriceState, TechalibError> {
-    TechalibError::check_same_length(("high_prices", high_prices), ("low_prices", low_prices))?;
-    TechalibError::check_same_length(("output", output), ("high_prices", high_prices))?;
+    check_param_eq!(high_prices.len(), low_prices.len());
+    check_param_eq!(output.len(), high_prices.len());
 
     let len = high_prices.len();
     let lookback = lookback_from_period(period)?;
@@ -264,17 +264,17 @@ pub fn midprice_into(
     }
 
     let midprice = init_midprice_unchecked(high_prices, low_prices, lookback, output)?;
-    TechalibError::check_overflow(midprice)?;
+    check_finite!(midprice);
     output[lookback] = midprice;
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, high_prices)?;
-        TechalibError::check_finite_at(idx, low_prices)?;
+        check_finite_at!(idx, high_prices);
+        check_finite_at!(idx, low_prices);
         output[idx] = midprice_next_unchecked(
             &high_prices[idx - lookback..=idx],
             &low_prices[idx - lookback..=idx],
         );
-        TechalibError::check_overflow(output[idx])?;
+        check_finite!(output[idx]);
     }
 
     Ok(MidpriceState {
@@ -292,19 +292,19 @@ fn init_midprice_unchecked(
     lookback: usize,
     output: &mut [Float],
 ) -> Result<Float, TechalibError> {
-    TechalibError::check_finite_at(0, high_prices)?;
-    TechalibError::check_finite_at(0, low_prices)?;
+    check_finite_at!(0, high_prices);
+    check_finite_at!(0, low_prices);
     let mut maximum = high_prices[0];
     let mut minimum = low_prices[0];
     output[0] = f64::NAN;
     for i in 0..lookback {
-        TechalibError::check_finite_at(i, high_prices)?;
-        TechalibError::check_finite_at(i, low_prices)?;
+        check_finite_at!(i, high_prices);
+        check_finite_at!(i, low_prices);
         (maximum, minimum) = minmax(high_prices[i], low_prices[i], maximum, minimum);
         output[i] = f64::NAN;
     }
-    TechalibError::check_finite_at(lookback, high_prices)?;
-    TechalibError::check_finite_at(lookback, low_prices)?;
+    check_finite_at!(lookback, high_prices);
+    check_finite_at!(lookback, low_prices);
     (maximum, minimum) = minmax(
         high_prices[lookback],
         low_prices[lookback],

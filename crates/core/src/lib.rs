@@ -3,6 +3,7 @@
 //! analysis.
 
 /// This module contains the error types used throughout the library.
+#[macro_use]
 pub mod errors;
 
 /// This module contains the implementations of the technical indicators.

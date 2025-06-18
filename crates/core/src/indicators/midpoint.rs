@@ -101,8 +101,8 @@ impl State<Float> for MidpointState {
     /// ---
     /// - `sample`: The new input to update the MIDPOINT state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_period(self.period)?;
+        check_finite!(sample);
+        check_param_gte!(self.period, 2);
         if self.last_window.len() != self.period {
             return Err(TechalibError::BadParam(format!(
                 "MIDPOINT state last_window length must be equal to period ({}), got: {}",
@@ -126,7 +126,7 @@ impl State<Float> for MidpointState {
 
         let midpoint = midpoint_next_unchecked(window.make_contiguous());
 
-        TechalibError::check_overflow(midpoint)?;
+        check_finite!(midpoint);
         self.last_window = window;
         self.midpoint = midpoint;
 
@@ -197,7 +197,7 @@ pub fn midpoint_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<MidpointState, TechalibError> {
-    TechalibError::check_same_length(("output", output), ("data", data))?;
+    check_param_eq!(output.len(), data.len());
     let len = data.len();
     let lookback = lookback_from_period(period)?;
 
@@ -207,12 +207,12 @@ pub fn midpoint_into(
 
     let midpoint = init_midpoint_unchecked(data, lookback, output)?;
     output[lookback] = midpoint;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         output[idx] = midpoint_next_unchecked(&data[idx - lookback..=idx]);
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(MidpointState {
@@ -228,16 +228,16 @@ fn init_midpoint_unchecked(
     lookback: usize,
     output: &mut [Float],
 ) -> Result<Float, TechalibError> {
-    TechalibError::check_finite_at(0, data)?;
+    check_finite_at!(0, data);
     let mut maximum = data[0];
     let mut minimum = maximum;
     output[0] = f64::NAN;
     for idx in 1..lookback {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         (maximum, minimum) = minmax(data[idx], maximum, minimum);
         output[idx] = f64::NAN;
     }
-    TechalibError::check_finite_at(lookback, data)?;
+    check_finite_at!(lookback, data);
     (maximum, minimum) = minmax(data[lookback], maximum, minimum);
 
     Ok(calculate_midpoint(maximum, minimum))

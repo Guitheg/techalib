@@ -120,8 +120,8 @@ impl State<Float> for TrimaState {
     /// ---
     /// - `sample`: The new input to update the TRIMA state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_period(self.period)?;
-        TechalibError::check_finite(sample, "sample")?;
+        check_param_gte!(self.period, 2);
+        check_finite!(sample);
         if !self.trima.is_finite() {
             return Err(TechalibError::DataNonFinite(format!(
                 "prev_trima = {:?}",
@@ -173,7 +173,7 @@ impl State<Float> for TrimaState {
             )
         };
 
-        TechalibError::check_overflow(trima)?;
+        check_finite!(trima);
 
         self.trima = trima;
         self.weighted_sum = new_weighted_sum;
@@ -191,7 +191,7 @@ impl State<Float> for TrimaState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(period - 1)
 }
 
@@ -241,7 +241,7 @@ pub fn trima_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<TrimaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
     let is_odd = period % 2 != 0;
     let lookback = lookback_from_period(period)?;
@@ -253,12 +253,12 @@ pub fn trima_into(
         init_trima_unchecked(data, period, output)?;
 
     output[lookback] = trima;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
     middle_idx += 1;
 
     if is_odd {
         for idx in period..len {
-            TechalibError::check_finite_at(idx, data)?;
+            check_finite_at!(idx, data);
             (output[idx], sum, trailing_sum, heading_sum) = trima_next_odd_unchecked(
                 data[idx],
                 data[middle_idx],
@@ -268,12 +268,12 @@ pub fn trima_into(
                 heading_sum,
                 inv_weight_sum,
             );
-            TechalibError::check_overflow_at(idx, output)?;
+            check_finite_at!(idx, output);
             middle_idx += 1;
         }
     } else {
         for idx in period..len {
-            TechalibError::check_finite_at(idx, data)?;
+            check_finite_at!(idx, data);
             (output[idx], sum, trailing_sum, heading_sum) = trima_next_even_unchecked(
                 data[idx],
                 data[middle_idx],
@@ -283,7 +283,7 @@ pub fn trima_into(
                 heading_sum,
                 inv_weight_sum,
             );
-            TechalibError::check_overflow_at(idx, output)?;
+            check_finite_at!(idx, output);
             middle_idx += 1;
         }
     }

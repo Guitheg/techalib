@@ -114,21 +114,21 @@ impl State<&MinusDmSample> for MinusDmState {
     /// ---
     /// - `sample`: The new input to update the MINUS_DM state
     fn update(&mut self, sample: &MinusDmSample) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample.high, "sample.high")?;
-        TechalibError::check_finite(sample.low, "sample.low")?;
+        check_finite!(sample.high);
+        check_finite!(sample.low);
         if self.period < 1 {
             return Err(TechalibError::BadParam(format!(
                 "Period must be greater than 0, got {}",
                 self.period
             )));
         }
-        TechalibError::check_finite(self.prev_high, "self.prev_high")?;
-        TechalibError::check_finite(self.prev_low, "self.prev_low")?;
+        check_finite!(self.prev_high);
+        check_finite!(self.prev_low);
 
         if self.period == 1 {
             let new_minus_dm =
                 raw_minus_dm_unchecked(sample.high, sample.low, self.prev_high, self.prev_low);
-            TechalibError::check_overflow(new_minus_dm)?;
+            check_finite!(new_minus_dm);
             self.prev_minus_dm = new_minus_dm;
             self.prev_high = sample.high;
             self.prev_low = sample.low;
@@ -143,7 +143,7 @@ impl State<&MinusDmSample> for MinusDmState {
                     self.prev_minus_dm,
                     inv_period,
                 );
-            TechalibError::check_overflow(new_minus_dm)?;
+            check_finite!(new_minus_dm);
             self.prev_minus_dm = new_minus_dm;
             self.prev_high = sample.high;
             self.prev_low = sample.low;
@@ -223,8 +223,8 @@ pub fn minus_dm_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<MinusDmState, TechalibError> {
-    TechalibError::check_same_length(("output", output), ("high", high))?;
-    TechalibError::check_same_length(("output", output), ("low", low))?;
+    check_param_eq!(output.len(), high.len());
+    check_param_eq!(output.len(), low.len());
 
     let len = high.len();
     let lookback = lookback_from_period(period)?;
@@ -235,12 +235,12 @@ pub fn minus_dm_into(
     }
 
     if period == 1 {
-        TechalibError::check_finite_at(0, high)?;
-        TechalibError::check_finite_at(0, low)?;
+        check_finite_at!(0, high);
+        check_finite_at!(0, low);
         output[0] = Float::NAN;
         for idx in 1..len {
-            TechalibError::check_finite_at(idx, high)?;
-            TechalibError::check_finite_at(idx, low)?;
+            check_finite_at!(idx, high);
+            check_finite_at!(idx, low);
             output[idx] = raw_minus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
         }
         return Ok(MinusDmState {
@@ -253,11 +253,11 @@ pub fn minus_dm_into(
 
     let mut minus_dm = init_minus_dm_unchecked(high, low, lookback, output)?;
     output[lookback] = minus_dm;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, high)?;
-        TechalibError::check_finite_at(idx, low)?;
+        check_finite_at!(idx, high);
+        check_finite_at!(idx, low);
 
         minus_dm += minus_dm_next_unchecked(
             high[idx],
@@ -269,7 +269,7 @@ pub fn minus_dm_into(
         );
 
         output[idx] = minus_dm;
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(MinusDmState {
@@ -287,18 +287,18 @@ fn init_minus_dm_unchecked(
     lookback: usize,
     output: &mut [Float],
 ) -> Result<Float, TechalibError> {
-    TechalibError::check_finite_at(0, high)?;
-    TechalibError::check_finite_at(0, low)?;
+    check_finite_at!(0, high);
+    check_finite_at!(0, low);
     output[0] = Float::NAN;
     let mut sum = 0.0;
     for idx in 1..lookback {
-        TechalibError::check_finite_at(idx, high)?;
-        TechalibError::check_finite_at(idx, low)?;
+        check_finite_at!(idx, high);
+        check_finite_at!(idx, low);
         sum += raw_minus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
         output[idx] = Float::NAN;
     }
-    TechalibError::check_finite_at(lookback, high)?;
-    TechalibError::check_finite_at(lookback, low)?;
+    check_finite_at!(lookback, high);
+    check_finite_at!(lookback, low);
     sum += raw_minus_dm_unchecked(
         high[lookback],
         low[lookback],

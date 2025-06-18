@@ -108,14 +108,14 @@ impl State<Float> for DemaState {
     /// ---
     /// - `sample`: The new input value to update the state with.
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_period(self.period)?;
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_finite(self.alpha, "alpha")?;
-        TechalibError::check_finite(self.ema_1, "ema_1")?;
-        TechalibError::check_finite(self.ema_2, "ema_2")?;
+        check_param_gte!(self.period, 2);
+        check_finite!(sample);
+        check_finite!(self.alpha);
+        check_finite!(self.ema_1);
+        check_finite!(self.ema_2);
 
         let (dema, ema_1, ema_2) = dema_next_unchecked(sample, self.ema_1, self.ema_2, self.alpha);
-        TechalibError::check_overflow(dema)?;
+        check_finite!(dema);
 
         self.dema = dema;
         self.ema_1 = ema_1;
@@ -131,7 +131,7 @@ impl State<Float> for DemaState {
 /// and the next values will be the DEMA values.
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(2 * (period - 1))
 }
 
@@ -187,7 +187,7 @@ pub fn dema_into(
     alpha: Option<Float>,
     output: &mut [Float],
 ) -> Result<DemaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
     let inv_period = 1.0 / period as Float;
     let lookback = lookback_from_period(period)?;
@@ -200,14 +200,14 @@ pub fn dema_into(
     let (output_value, mut ema_1, mut ema_2) =
         init_dema_unchecked(data, period, inv_period, lookback, alpha, output)?;
     output[lookback] = output_value;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
 
         (output[idx], ema_1, ema_2) = dema_next_unchecked(data[idx], ema_1, ema_2, alpha);
 
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(DemaState {
@@ -244,12 +244,12 @@ pub(crate) fn init_dema_unchecked(
 
     let mut sum_ema_2 = ema_1;
     for idx in period..skip_period {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         ema_1 = ema_next_unchecked(data[idx], ema_1, alpha);
         sum_ema_2 += ema_1;
         output[idx] = Float::NAN;
     }
-    TechalibError::check_finite_at(skip_period, data)?;
+    check_finite_at!(skip_period, data);
     ema_1 = ema_next_unchecked(data[skip_period], ema_1, alpha);
     sum_ema_2 += ema_1;
     let ema_2 = sum_ema_2 * inv_period;

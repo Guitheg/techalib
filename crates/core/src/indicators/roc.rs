@@ -101,7 +101,7 @@ impl State<Float> for RocState {
     /// ---
     /// - `sample`: The new input to update the ROC state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample, "sample")?;
+        check_finite!(sample);
         if self.period < 1 {
             return Err(TechalibError::BadParam(format!(
                 "Period must be greater than 0, got {}",
@@ -132,7 +132,7 @@ impl State<Float> for RocState {
 
         let new_roc = roc_next_unchecked(sample, old_value);
 
-        TechalibError::check_overflow(new_roc)?;
+        check_finite!(new_roc);
         self.roc = new_roc;
         self.last_window = window;
         Ok(())
@@ -202,7 +202,7 @@ pub fn roc_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<RocState, TechalibError> {
-    TechalibError::check_same_length(("output", output), ("data", data))?;
+    check_param_eq!(output.len(), data.len());
 
     let len = data.len();
     let lookback = lookback_from_period(period)?;
@@ -213,14 +213,14 @@ pub fn roc_into(
 
     let output_value = init_roc_unchecked(data, lookback, output)?;
     output[lookback] = output_value;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
 
         output[idx] = roc_next_unchecked(data[idx], data[idx - period]);
 
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(RocState {
@@ -237,10 +237,10 @@ fn init_roc_unchecked(
     output: &mut [Float],
 ) -> Result<Float, TechalibError> {
     for (idx, item) in output.iter_mut().enumerate().take(lookback) {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         *item = Float::NAN;
     }
-    TechalibError::check_finite_at(lookback, data)?;
+    check_finite_at!(lookback, data);
     Ok(roc_next_unchecked(data[lookback], data[0]))
 }
 

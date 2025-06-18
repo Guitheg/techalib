@@ -3,9 +3,9 @@
 use libfuzzer_sys::fuzz_target;
 use techalib::{indicators::${indicator_name}::${indicator_name}, types::Float};
 
-fuzz_target!(|data: (Vec<Float>, u8)| {
+fuzz_target!(|data: (${Test_Fuzz_Define_Signature})| {
     // TODO: INPUT ARGUMENTS
-    let (v, period) = data;
-    let period = (period as usize % v.len().saturating_add(1)).max(1);
-    let _ = ${indicator_name}(&v, period);
+    let (${Test_Fuzz_Get_Inputs}) = data;
+    ${Test_Fuzz_Set_Params}
+    let _ = ${indicator_name}(${Test_Fuzz_Input_Fct});
 });

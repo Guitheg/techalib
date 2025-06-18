@@ -53,14 +53,11 @@ use crate::traits::State;
 /// Attributes
 /// ---
 /// TODO: ATTRIBUTES
-/// - `${indicator_name}`: A vector of [`Float`] representing the calculated ${indicator_name}.
 /// - `state`: A [`${IndicatorName}State`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct ${IndicatorName}Result {
-    // TODO: IMPLEMENTS RESULT ATTRIBUTES
-    /// The calculated ${INDICATORNAME} values
-    pub ${indicator_name}: Vec<Float>,
+    ${StructResult_DefinitionOutputs},
     /// The [`${IndicatorName}State`] state of the ${INDICATORNAME} calculation.
     pub state: ${IndicatorName}State,
 }
@@ -73,7 +70,7 @@ pub struct ${IndicatorName}Result {
 /// Attributes
 /// ---
 /// **Previous outputs values**
-/// - `prev_${indicator_name}`: The previous calculated value.
+/// TODO: OUTPUTS ATTRIBUTES
 ///
 /// **State values**
 /// TODO: STATE ATTRIBUTES
@@ -82,31 +79,30 @@ pub struct ${IndicatorName}Result {
 /// TODO: PARAMETERS ATTRIBUTES
 #[derive(Debug, Clone, Copy)]
 pub struct ${IndicatorName}State {
-    // TODO: IMPLEMENTS OUTPUTS ATTRIBUTES
     // Outputs
-    /// The previous calculated value.
-    pub prev_${indicator_name}: Float,
-
-    // TODO: IMPLEMENTS STATE ATTRIBUTES
+    ${StructState_DefinitionOutputs}
     // State values
-
-    // TODO: IMPLEMENTS PARAMETERS ATTRIBUTES
+    ${StructState_DefinitionStates}
     // Parameters
-    /// The period used for the calculation.
-    pub period: usize
+    ${StructState_DefinitionParams}
 }
 
-impl State<Float> for ${IndicatorName}State {
+${StructSample}
+
+impl State<${StateType}> for ${IndicatorName}State {
     /// Update the [`${IndicatorName}State`] with a new sample
     ///
     /// Input Arguments
     /// ---
     /// - `sample`: The new input to update the ${INDICATORNAME} state
-    fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_period(self.period)?;
-        // TODO: IMPLEMENTS UPDATE METHODS
+    fn update(&mut self, sample: ${StateType}) -> Result<(), TechalibError> {
+        // TODO: Check parameters
+        ${StateUpdate_Checks}
+        // TODO: Param check and treatment
 
+        let ${StateUpdate_Next_Outputs} = ${indicator_name}_next_unchecked(${StateUpdate_Next_Args});
+
+        ${StateUpdate_CheckOutputAndSet}
         Ok(())
     }
 }
@@ -118,7 +114,8 @@ impl State<Float> for ${IndicatorName}State {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    // TODO: Implements callback
+    check_param_gte!(period, 2);
     Ok(period)
 }
 
@@ -131,31 +128,21 @@ pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
 /// Input Arguments
 /// ---
 /// TODO: INPUT ARGS DESCRIPTION
-/// - `data`: A slice of [`Float`] representing the input data.
-/// - `period`: The period for the calculation.
 ///
 /// Returns
 /// ---
 /// A `Result` containing a [`${IndicatorName}Result`],
 /// or a [`TechalibError`] error if the calculation fails.
 pub fn ${indicator_name}(
-    data: &[Float],
-    period: usize
-    // TODO: DEFINE ARGUMENTS OF INDICATOR FUNCTION
+    ${Fct_Args}
 ) -> Result<${IndicatorName}Result, TechalibError> {
-    // TODO: INITIALIZE OUTPUTS
-    let mut output = vec![0.0; data.len()];
-
+    ${Fct_OutputsInitialisation}
     let ${indicator_name}_state = ${indicator_name}_into(
-        data,
-        period,
-        output.as_mut_slice()
-        // TODO: ARGUMENTS AND OUTPUTS ARGUMENTS
+        ${Fct_ArgsIn_IntoFct}
     )?;
 
     Ok(${IndicatorName}Result {
-        // TODO: OUTPUT AND STATES TO RESULT
-        ${indicator_name}: output,
+        ${Fct_ResultCreation},
         state: ${indicator_name}_state
     })
 }
@@ -169,30 +156,20 @@ pub fn ${indicator_name}(
 /// Input Arguments
 /// ---
 /// TODO: INPUT ARGS DESCRIPTIONS
-/// - `data`: A slice of [`Float`] representing the input data.
-/// - `period`: The period for the calculation.
 ///
 /// Output Arguments
 /// ---
 /// TODO: OUTPUT ARGS DESCRIPTIONS
-/// - `output`: A mutable slice of [`Float`] where the calculated values will be stored.
 ///
 /// Returns
 /// ---
 /// A `Result` containing a [`${IndicatorName}State`],
 /// or a [`TechalibError`] error if the calculation fails.
 pub fn ${indicator_name}_into(
-    data: &[Float],
-    period: usize,
-    output: &mut [Float],
-    // TODO: ARGUMENTS AND OUTPUTS ARGUMENTS
+    ${Fct_Args},
+    ${IntoFct_OuputsArgs}
 ) -> Result<${IndicatorName}State, TechalibError> {
-    TechalibError::check_same_length(
-        ("output", output),
-        ("data", data)
-    )?;
-
-    let len = data.len();
+    ${IntoFct_Checks}
     let lookback = lookback_from_period(period)?;
 
     if len <= lookback {
@@ -201,46 +178,40 @@ pub fn ${indicator_name}_into(
 
     // TODO: IMPLEMENTS CORE FUNCTION LOGIC
 
-    let output_value =
-        init_${indicator_name}_unchecked(data, lookback, output)?;
-    output[lookback] = output_value;
-    TechalibError::check_overflow_at(lookback, output)?;
+    let ${IntoFct_InitUnchecked_Outputs} =
+        init_${indicator_name}_unchecked(${IntoFct_InitUnchecked_InputArgs})?;
+    ${IntoFct_InitUnchecked_CheckOutputsAndSet}
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        ${IntoFct_CheckFinitesIn}
 
-        output[idx] = ${indicator_name}_next_unchecked(data[idx]);
+        ${IntoFct_Next_Out} = ${indicator_name}_next_unchecked(${IntoFct_Next_Args});
 
-        TechalibError::check_overflow_at(idx, output)?;
+        ${IntoFct_CheckFinitesOut}
     }
 
     Ok(${IndicatorName}State {
-        prev_${indicator_name}: output[len-1],
-        period
+        ${IntoFct_StateCreation}
     })
 }
 
 #[inline(always)]
 fn init_${indicator_name}_unchecked(
-    data: &[Float],
-    lookback: usize,
-    output: &mut [Float]
-    // TODO: DEFINIE INIT ARGUMENTS
-) -> Result<Float, TechalibError> {
+    ${InitUnchecked_Args}
+) -> Result<${InitUnchecked_ReturnType}, TechalibError> {
     // TODO: IMPLEMENTS INIT
     for idx in 0..lookback {
-        TechalibError::check_finite_at(idx, data)?;
+        ${IntoFct_CheckFinitesIn}
 
-        output[idx] = Float::NAN;
+        // output[idx] = Float::NAN;
     }
-    Ok(0.0)
+    Ok(${InitUnchecked_ReturnValues})
 }
 
 #[inline(always)]
 fn ${indicator_name}_next_unchecked(
-    new_value: Float,
-    // TODO: CORE ARGUMENTS FOR INCREMENTAL
-) -> Float {
+    ${Next_Args}
+) -> ${Next_ReturnType} {
     // TODO: IMPLEMENTS CORE INCREMENTAL LOGIC
-    0.0
+    ${Next_ReturnValues}
 }

@@ -2,6 +2,16 @@ from typing import List
 from pathlib import Path
 import argparse
 from utils.logger import logger
+from utils.kwargs_parser import ParseKwargs
+from template_helper.crate_core_template import *
+from template_helper.bench_python_pyperf_template import *
+from template_helper.bench_python_timeit_template import *
+from template_helper.bench_rust_template import *
+from template_helper.crate_python_template import *
+from template_helper.python_stub_template import *
+from template_helper.tests_fuzz_template import *
+from template_helper.tests_python_template import *
+from template_helper.tests_rust_template import *
 from string import Template
 import subprocess
 
@@ -45,9 +55,14 @@ TEMPLATES_TO_FILE = {
 def create_from_template(
     indicator_name: str,
     indicator_camel_case: str = None,
-    contributor_name: str = DEFAULT_CONTRIBUTOR_NAME
+    contributor_name: str = DEFAULT_CONTRIBUTOR_NAME,
+    fct_inputs: List[str] = None,
+    fct_outputs: List[str] = None,
+    fct_states: dict = None,
+    fct_params: dict = None
 ):
     logger.info(f"🔧 Creating templates for {indicator_name} (camel_case: {indicator_camel_case}, author: {contributor_name})")
+    indicator_camel_case = indicator_name.capitalize() if (indicator_camel_case is None) else indicator_camel_case
     for template_file, target_file in TEMPLATES_TO_FILE.items():
         template_path = TEMPLATE_DIR / template_file
         target_path = Path(__file__).parent.parent / target_file.format(name=indicator_name)
@@ -57,9 +72,92 @@ def create_from_template(
         with open(target_path, 'w') as target_f:
             target_f.write(template_content.substitute({
                 "indicator_name": indicator_name,
-                "IndicatorName": indicator_name.capitalize() if (indicator_camel_case is None) else indicator_camel_case,
+                "IndicatorName": indicator_camel_case,
                 "INDICATORNAME": indicator_name.upper(),
-                "ContributorName": contributor_name
+                "ContributorName": contributor_name,
+                "StructResult_DefinitionOutputs": struct_result_definition_outputs(indicator_name, fct_outputs),
+                "StructState_DefinitionOutputs": struct_state_definition_outputs(indicator_name, fct_outputs),
+                "StructState_DefinitionStates": struct_state_definition_states(fct_states),
+                "StructState_DefinitionParams": struct_state_definition_params(fct_params),
+                "StateUpdate_Checks": state_update_checks(fct_inputs, fct_states),
+                "StateUpdate_Next_Outputs": state_update_next_outputs(indicator_name, fct_outputs, fct_states),
+                "StateUpdate_Next_Args": state_update_next_args(fct_inputs, fct_states, fct_params),
+                "StateUpdate_CheckOutputAndSet": state_update_check_output_and_set(indicator_name, fct_outputs, fct_states),
+                "StateType": state_type(indicator_camel_case, fct_inputs),
+                "StructSample": struct_sample(indicator_name, indicator_camel_case, fct_inputs),
+                "StructSample_Definition": struct_sample(indicator_name, indicator_camel_case, fct_inputs),
+                "Fct_Args": fct_args(fct_inputs, fct_params),
+                "Fct_OutputsInitialisation": fct_outputs_initialisation(fct_inputs, fct_outputs),
+                "Fct_ArgsIn_IntoFct": fct_args_in_intofct(fct_inputs, fct_params, fct_outputs),
+                "Fct_ResultCreation": fct_result_creation(indicator_name, fct_outputs),
+                "IntoFct_OuputsArgs": into_fct_output_args(fct_outputs),
+                "IntoFct_Checks": into_fct_checks(fct_inputs, fct_outputs),
+                "IntoFct_InitUnchecked_InputArgs": into_fct_init_unchecked_input_args(fct_inputs, fct_outputs, fct_params),
+                "IntoFct_InitUnchecked_Outputs": into_fct_init_unchecked_outputs(fct_outputs, fct_states),
+                "IntoFct_InitUnchecked_CheckOutputsAndSet": into_fct_init_unchecked_check_outputs_and_set(fct_outputs),
+                "IntoFct_CheckFinitesIn": into_fct_check_finites_in(fct_inputs, fct_outputs),
+                "IntoFct_CheckFinitesOut": into_fct_check_finites_out(fct_outputs),
+                "IntoFct_Next_Out": into_fct_next_out(fct_outputs, fct_states),
+                "IntoFct_Next_Args": into_fct_next_args(fct_inputs, fct_states, fct_params),
+                "IntoFct_StateCreation": into_fct_state_creation(indicator_name, fct_outputs, fct_states, fct_params),
+                "InitUnchecked_Args": init_unchecked_args(fct_inputs, fct_params, fct_outputs),
+                "InitUnchecked_ReturnType": init_unchecked_return_type(fct_outputs, fct_states),
+                "InitUnchecked_ReturnValues": init_unchecked_return_values(fct_outputs, fct_states),
+                "Next_Args": next_args(fct_inputs, fct_states, fct_params),
+                "Next_ReturnType": init_unchecked_return_type(fct_outputs, fct_states),
+                "Next_ReturnValues": init_unchecked_return_values(fct_outputs, fct_states),
+                "Bench_InputArgs_Init": bench_input_args_init(fct_inputs, fct_params),
+                "Bench_InputArgs": bench_input_args(fct_inputs, fct_params),
+                "Bench_Init_Param": bench_init_param(fct_params),
+                "Bench_Data_Init_5M": bench_data_init_5m(fct_inputs),
+                "Bench_Data_Init_1M": bench_data_init_1m(fct_inputs),
+                "Bench_Data_Init_50K": bench_data_init_50k(fct_inputs),
+                "Bench_Data_Args": bench_data_args(fct_inputs, fct_params),
+                "Bench_Length": bench_length(fct_inputs),
+                "Bench_Rust_Init_Data": bench_rust_init_data(fct_inputs, fct_params),
+                "Bench_Rust_Input_Args": bench_rust_input_args(fct_inputs, fct_params),
+                "PyState_Attributes_Definition": pystate_attributes_definition(indicator_name, fct_outputs, fct_states, fct_params),
+                "PyState_New": pystate_new(indicator_name, fct_outputs, fct_states, fct_params),
+                "PyState_Creation": pystate_creation(indicator_name, fct_outputs, fct_states, fct_params),
+                "PyFrom_State_To_PyState": pyfrom_state_to_pystate(indicator_name, fct_outputs, fct_states, fct_params),
+                "PyFrom_PyState_To_State": pyfrom_pystate_to_state(indicator_name, fct_outputs, fct_states, fct_params),
+                "Py_Signature": py_signature(fct_inputs, fct_params),
+                "Py_Args": py_args(fct_inputs, fct_params),
+                "Py_Outputs": py_outputs(fct_outputs),
+                "Py_Define_Data": py_define_data(fct_inputs),
+                "Py_Define_Outputs": py_define_outputs(fct_outputs),
+                "Py_IntoFct_Input_Args": py_into_fct_input_args(fct_inputs, fct_params, fct_outputs),
+                "Py_Results_Outputs": py_results_outputs(fct_outputs),
+                "Py_Define_Outputs_PyHeap": py_define_outputs_pyheap(fct_outputs),
+                "Py_IntoFct_Input_Args_PyHeap": py_into_fct_input_args_pyheap(fct_inputs, fct_params, fct_outputs),
+                "Py_Results_Outputs_PyHeap": py_results_outputs_pyheap(fct_outputs),
+                "Py_Next_Signature": py_next_signature(fct_inputs),
+                "Py_Next_Args_Definition": py_next_args_definition(fct_inputs),
+                "Py_Next_CreateSample": py_next_create_sample(indicator_camel_case, fct_inputs),
+                "Py_ImportSample": py_import_sample(indicator_camel_case, fct_inputs),
+                "PyStub_State_Attributes": py_stub_state_attributes(indicator_name, fct_outputs, fct_states, fct_params),
+                "PyStub_Results_Attributes": py_stub_results_attributes(indicator_name, fct_outputs),
+                "PyStub_Args": py_stub_args(fct_inputs, fct_params),
+                "PyStup_Next_Args": py_stub_next_args(fct_inputs),
+                "Test_Fuzz_Define_Signature": test_fuzz_define_signature(fct_inputs, fct_params),
+                "Test_Fuzz_Get_Inputs": test_fuzz_get_inputs(fct_inputs, fct_params),
+                "Test_Fuzz_Set_Params": test_fuzz_set_params(fct_inputs, fct_params),
+                "Test_Fuzz_Input_Fct": test_fuzz_input_fct(fct_inputs, fct_params),
+                "Pytest_Input_Data": pytest_input_data(fct_inputs),
+                "Pytest_Input_Param": pytest_input_param(fct_params),
+                "Pytest_Input_Ohlcv": pytest_input_ohlcv(fct_inputs),
+                "Pytest_Output": pytest_output(indicator_name, fct_outputs),
+                "Pytest_State_Output": pytest_state_output(indicator_name, fct_outputs),
+                "Test_Rust_Params": test_rust_params(fct_params),
+                "Test_Rust_Get_Data_Input": test_rust_get_data_input(fct_inputs),
+                "Test_Rust_Get_Expected": test_rust_get_expected(indicator_name, fct_outputs),
+                "Test_Rust_Fct_Args": test_rust_fct_args(fct_inputs, fct_params),
+                "Test_Rust_Check_outputs": test_rust_check_outputs(indicator_name, fct_outputs),
+                "Test_Rust_Create_Sample": test_rust_create_sample(indicator_camel_case, fct_inputs),
+                "Test_Rust_Check_Next_Outputs": test_rust_check_next_outputs(indicator_name, fct_outputs),
+                "Test_Rust_Next_Overflow_Create_Sample": test_rust_next_overflow_create_sample(indicator_camel_case, fct_inputs),
+                "Test_Rust_Dummy_Input_Args": test_rust_dummy_input_args(fct_inputs, fct_params),
+                "Test_Rust_Dummy_Output_Args": test_rust_dummy_output_args(fct_outputs),
             }))
         logger.info(f"➕ Created {target_path}")
 
@@ -190,6 +288,38 @@ def parse_args():
         "--camel_case",
         type=str
     )
+    parser.add_argument(
+        "-i",
+        "--inputs",
+        type=str,
+        nargs="*",
+        help="Inputs of the indicator, e.g. 'input1', 'input2'.",
+        default=[]
+    )
+    parser.add_argument(
+        "-o",
+        "--outputs",
+        type=str,
+        nargs="*",
+        help="Outputs of the indicator, e.g. 'value1', 'value2'.",
+        default=[]
+    )
+    parser.add_argument(
+        "-s",
+        "--states",
+        nargs="*",
+        action=ParseKwargs,
+        help="States of the indicator, e.g. 'state1=type1', 'state2=type2'.",
+        default={}
+    )
+    parser.add_argument(
+        "-p",
+        "--parameters",
+        nargs="*",
+        action=ParseKwargs,
+        help="Parameters of the indicator, e.g. 'param1=value1', 'param2=value2'.",
+        default={}
+    )
     return parser.parse_args()
 
 def get_contributor_name() -> str:
@@ -210,7 +340,11 @@ def main():
     create_from_template(
         args.name,
         indicator_camel_case = args.camel_case,
-        contributor_name = contributor_name
+        contributor_name = contributor_name,
+        fct_inputs = args.inputs,
+        fct_outputs = args.outputs,
+        fct_states = args.states,
+        fct_params = args.parameters
     )
     add_to_bench_timeit(args.name)
     add_to_python_stub_init(args.name)

@@ -1,32 +1,34 @@
 import techalib as tb
 # TODO: IMPLEMENTS NUMPY TEST
 def test_${indicator_name}_numpy_success(test_numpy_with_generated_data):
-    def ${indicator_name}(data):
-        return tb.${indicator_name}(data)
+    def ${indicator_name}(${Pytest_Input_Data}):
+        return tb.${indicator_name}(${Pytest_Input_Data}, ${Pytest_Input_Param})
 
     test_numpy_with_generated_data(
         "${indicator_name}",
         ${indicator_name},
         tb.${indicator_name}_next,
-        ["close"],
-        ["${indicator_name}"]
+        [${Pytest_Input_Ohlcv}],
+        [${Pytest_Output}],
+        [${Pytest_State_Output}]
     )
 
 # TODO: IMPLEMENTS PANDAS TEST
 def test_${indicator_name}_pandas_success(test_with_generated_data):
-    def ${indicator_name}(data):
-        return tb.${indicator_name}(data)
+    def ${indicator_name}(${Pytest_Input_Data}):
+        return tb.${indicator_name}(${Pytest_Input_Data}, ${Pytest_Input_Param})
 
     test_with_generated_data(
         "${indicator_name}",
         ${indicator_name},
         tb.${indicator_name}_next,
-        ["close"],
-        ["${indicator_name}"]
+        [${Pytest_Input_Ohlcv}],
+        [${Pytest_Output}],
+        [${Pytest_State_Output}]
     )
 
-# TODO: IMPLEMENTS THREAD TEST
 def test_thread_${indicator_name}(thread_test):
+    # TODO: DEFINE ARGS
     def ad_tx_lambda(data):
         return tb.${indicator_name}(data, release_gil = True)
 

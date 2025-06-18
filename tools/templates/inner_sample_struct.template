@@ -1,0 +1,8 @@
+/// ${INDICATORNAME} sample
+/// ---
+/// This struct represents a sample for the ${INDICATORNAME} calculation.
+/// It contains the high and low prices of the sample.
+#[derive(Debug, Clone, Copy)]
+pub struct ${IndicatorName}Sample {
+    ${StructSample_Definition}
+}

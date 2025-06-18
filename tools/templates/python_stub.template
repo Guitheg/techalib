@@ -1,27 +1,22 @@
 
 from dataclasses import dataclass
-from typing import NamedTuple, Optional, Tuple
+from typing import NamedTuple, Optional, Tuple, List
 
 from numpy.typing import NDArray
 
 @dataclass(frozen=True)
 class ${IndicatorName}State:
     """State for the ${IndicatorName} computation"""
-    # TODO: DEFINE STATE ATTRIBUTES
-    prev_${indicator_name}: float
-    period: int
+    ${PyStub_State_Attributes}
     ...
 
 class ${IndicatorName}Result(NamedTuple):
     """Result of the ${IndicatorName} computation"""
-    # TODO: DEFINE RESULTS OUTPUTS ATTRIBUTES
-    ${indicator_name}: NDArray
+    ${PyStub_Results_Attributes}
     state: ${IndicatorName}State
 
 def ${indicator_name}(
-    # TODO: DEFINE ARGUMENTS INPUTS
-    data: NDArray,
-    period: int = 14,
+    ${PyStub_Args}
     release_gil: bool = False
 ) -> ${IndicatorName}Result | Tuple[NDArray, ${IndicatorName}State]:
     # TODO: FILL THE DOCUMENTATION
@@ -50,8 +45,7 @@ def ${indicator_name}(
     ...
 
 def ${indicator_name}_next(
-    # TODO: DEFINE ARGUMENTS INPUTS
-    new_value: float
+    ${PyStup_Next_Args}
     state: ${IndicatorName}State
 ) -> ${IndicatorName}State:
     """

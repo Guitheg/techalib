@@ -7,6 +7,7 @@ from pathlib import Path
 import argparse
 from utils.logger import logger
 from utils import ohlcv
+from utils.kwargs_parser import ParseKwargs
 
 DATA_DIR = Path(__file__).parent.parent / "tests" / "data" / "generated"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -74,26 +75,6 @@ def generate_test_data(filename: str, configuration: Configuration, seed: int):
     )
 
     logger.info(f"✅ ({configuration.fct_name}) Successfully write data at : {DATA_DIR / filename}.csv")
-
-
-class ParseKwargs(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, dict())
-        for value in values:
-            key, value = value.split('=')
-            if "." in value:
-                try:
-                    value = float(value)
-                except ValueError:
-                    logger.warning(f"Could not convert {value} to float, keeping as string.")
-            elif value.isdigit():
-                try:
-                    value = int(value)
-                except ValueError:
-                    logger.warning(f"Could not convert {value} to int, keeping as string.")
-            elif value.lower() in ['true', 'false']:
-                value = value.lower() == 'true'
-            getattr(namespace, self.dest)[key] = value
 
 def dict_to_posix_filename(d: dict) -> str:
     """Convert a dictionary to a posix filename."""

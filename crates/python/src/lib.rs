@@ -4,6 +4,7 @@ mod py_ad;
 mod py_atr;
 mod py_bbands;
 mod py_dema;
+mod py_dx;
 mod py_ema;
 mod py_kama;
 mod py_macd;
@@ -94,5 +95,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_plus_di::plus_di, m)?)?;
     m.add_function(wrap_pyfunction!(py_plus_di::plus_di_next, m)?)?;
     m.add_class::<py_plus_di::PyPlusDiState>()?;
+    m.add_function(wrap_pyfunction!(py_dx::dx, m)?)?;
+    m.add_function(wrap_pyfunction!(py_dx::dx_next, m)?)?;
+    m.add_class::<py_dx::PyDxState>()?;
     Ok(())
 }

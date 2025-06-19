@@ -151,3 +151,10 @@ path = "fuzz_targets/fuzz_plus_di.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "dx"
+path = "fuzz_targets/fuzz_dx.rs"
+test = false
+doc = false
+bench = false

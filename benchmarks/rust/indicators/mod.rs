@@ -2,6 +2,7 @@ pub(crate) mod bench_ad;
 pub(crate) mod bench_atr;
 pub(crate) mod bench_bbands;
 pub(crate) mod bench_dema;
+pub(crate) mod bench_dx;
 pub(crate) mod bench_ema;
 pub(crate) mod bench_kama;
 pub(crate) mod bench_macd;

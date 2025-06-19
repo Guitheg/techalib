@@ -60,10 +60,10 @@ The number of supported indicators is set to increase.
 |                           | **macd** - Moving Average Convergence Divergence                | ✅        |
 |                           | **adx** - Average Directional Movement Index                    | ⬜        |
 |                           | **aroon** - Aroon                                               | ⬜        |
-|                           | **dx** - Directional Movement Index                             | ⬜        |
-|                           | **minus_di** - Minus Directional Indicator                      | ⬜        |
+|                           | **dx** - Directional Movement Index                             | ✅        |
+|                           | **minus_di** - Minus Directional Indicator                      | ✅        |
 |                           | **minus_dm** - Minus Directional Movement                       | ✅        |
-|                           | **plus_di** - Plus Directional Indicator                        | ⬜        |
+|                           | **plus_di** - Plus Directional Indicator                        | ✅        |
 |                           | **plus_dm** - Plus Directional Movement                         | ✅        |
 |                           | **roc** - Rate of change                                        | ✅        |
 |                           | **rocr** - Rate of change ratio                                 | ⬜        |

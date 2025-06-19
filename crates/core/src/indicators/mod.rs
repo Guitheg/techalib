@@ -2,6 +2,7 @@ pub mod ad;
 pub mod atr;
 pub mod bbands;
 pub mod dema;
+pub mod dx;
 pub mod ema;
 pub mod kama;
 pub mod macd;

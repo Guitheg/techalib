@@ -10,6 +10,8 @@ pub(crate) mod tests_bbands;
 #[cfg(test)]
 pub(crate) mod tests_dema;
 #[cfg(test)]
+pub(crate) mod tests_dx;
+#[cfg(test)]
 pub(crate) mod tests_ema;
 #[cfg(test)]
 pub(crate) mod tests_kama;

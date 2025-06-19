@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 FCT_TO_NAMEDTUPLE = {
+    "minus_di": namedtuple("Minus_diResult", ["minus_di", "state"]),
     "plus_dm": namedtuple("Plus_dmResult", ["plus_dm", "state"]),
     "minus_dm": namedtuple("Minus_dmResult", ["minus_dm", "state"]),
     "ad": namedtuple("AdResult", ["ad", "state"]),

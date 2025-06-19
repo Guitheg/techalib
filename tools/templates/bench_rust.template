@@ -16,7 +16,7 @@ fn bench_${indicator_name}(c: &mut criterion::Criterion) {
 
         bench_group.bench_with_input(BenchmarkId::new("${indicator_name}", len), &len, |b, &_len| {
             b.iter(|| {
-                let _ = ad(${Bench_Rust_Input_Args});
+                let _ = ${indicator_name}(${Bench_Rust_Input_Args});
             })
         });
     }

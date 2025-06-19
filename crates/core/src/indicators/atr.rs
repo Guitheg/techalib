@@ -272,14 +272,14 @@ fn init_atr_unchecked(
         check_finite_at!(idx, close);
         check_finite_at!(idx, high);
         check_finite_at!(idx, low);
-        sum += true_range(high[idx], low[idx], close[idx - 1]);
+        sum += calculate_true_range(high[idx], low[idx], close[idx - 1]);
 
         output[idx] = Float::NAN;
     }
     check_finite_at!(lookback, close);
     check_finite_at!(lookback, high);
     check_finite_at!(lookback, low);
-    sum += true_range(high[lookback], low[lookback], close[lookback - 1]);
+    sum += calculate_true_range(high[lookback], low[lookback], close[lookback - 1]);
 
     Ok(sum * inv_period)
 }
@@ -293,11 +293,11 @@ fn atr_next_unchecked(
     inv_period: Float,
     period_minus_one: Float,
 ) -> Float {
-    (true_range(high, low, prev_close) + (prev_atr * period_minus_one)) * inv_period
+    (calculate_true_range(high, low, prev_close) + (prev_atr * period_minus_one)) * inv_period
 }
 
 #[inline(always)]
-fn true_range(high: Float, low: Float, prev_close: Float) -> Float {
+pub(crate) fn calculate_true_range(high: Float, low: Float, prev_close: Float) -> Float {
     let hl = high - low;
     let hc = (high - prev_close).abs();
     let lc = (low - prev_close).abs();

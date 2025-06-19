@@ -79,7 +79,6 @@ impl From<Py${IndicatorName}State> for ${IndicatorName}State {
     }
 }
 
-// TODO: SET DEFAULT ARGUMENTS
 #[pyfunction(signature = (${Py_Signature}, release_gil = false))]
 pub(crate) fn ${indicator_name}(
     py: Python,

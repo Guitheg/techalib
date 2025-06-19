@@ -114,7 +114,7 @@ impl State<${StateType}> for ${IndicatorName}State {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    // TODO: Implements callback
+    // TODO: IMPLEMENTS
     check_param_gte!(period, 2);
     Ok(period)
 }

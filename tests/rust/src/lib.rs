@@ -20,6 +20,8 @@ pub(crate) mod tests_midpoint;
 #[cfg(test)]
 pub(crate) mod tests_midprice;
 #[cfg(test)]
+pub(crate) mod tests_minus_di;
+#[cfg(test)]
 pub(crate) mod tests_minus_dm;
 #[cfg(test)]
 pub(crate) mod tests_plus_dm;

@@ -7,6 +7,7 @@ pub mod kama;
 pub mod macd;
 pub mod midpoint;
 pub mod midprice;
+pub mod minus_di;
 pub mod minus_dm;
 pub mod plus_dm;
 pub mod roc;

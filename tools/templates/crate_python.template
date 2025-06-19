@@ -35,7 +35,7 @@
 
 use numpy::{IntoPyArray, PyArray1, PyArrayMethods, PyReadonlyArray1, PyUntypedArrayMethods};
 use pyo3::{pymethods, exceptions::PyValueError, pyclass, pyfunction, Py, PyResult, Python};
-use techalib::indicators::${indicator_name}::{${indicator_name}_into, ${IndicatorName}State, ${Py_ImportSample}};
+use techalib::indicators::${indicator_name}::{${indicator_name}_into, ${IndicatorName}State, ${ImportSample}};
 use techalib::traits::State;
 use techalib::types::Float;
 

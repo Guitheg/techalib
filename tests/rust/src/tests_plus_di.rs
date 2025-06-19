@@ -3,56 +3,73 @@ use crate::helper::{
     generated::{assert_vec_eq_gen_data, load_generated_csv},
 };
 
+use crate::expect_err_overflow_or_ok_with;
 use techalib::{
     errors::TechalibError,
-    indicators::${indicator_name}::{
-        ${indicator_name},
-        ${indicator_name}_into,
-        ${IndicatorName}Result,
-        ${ImportSample}
-    },
+    indicators::plus_di::{plus_di, plus_di_into, PlusDiResult, PlusDiSample},
     traits::State,
     types::Float,
 };
-use crate::expect_err_overflow_or_ok_with;
 
-fn generated_and_no_lookahead_${indicator_name}(file_name: &str, ${Test_Rust_Params}) {
+fn generated_and_no_lookahead_plus_di(file_name: &str, period: usize) {
     let columns = load_generated_csv(file_name).unwrap();
 
-    ${Test_Rust_Get_Data_Input}
+    let high = columns.get("high").unwrap();
+    let low = columns.get("low").unwrap();
+    let close = columns.get("close").unwrap();
+    let len = high.len();
 
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    ${Test_Rust_Get_Expected}
+    let expected_plus_di = columns.get("plus_di").unwrap();
 
-    let output = ${indicator_name}(${Test_Rust_Fct_Args});
-    assert!(output.is_ok(), "Failed to calculate ${INDICATORNAME}: {:?}", output.err());
+    let output = plus_di(
+        &high[0..last_idx],
+        &low[0..last_idx],
+        &close[0..last_idx],
+        period,
+    );
+    assert!(
+        output.is_ok(),
+        "Failed to calculate PLUS_DI: {:?}",
+        output.err()
+    );
     let result = output.unwrap();
 
-    ${Test_Rust_Check_outputs}
+    assert_vec_eq_gen_data(&expected_plus_di[0..last_idx], &result.plus_di);
 
     let mut new_state = result.state;
     for i in 0..next_count {
-        let sample = ${Test_Rust_Create_Sample};
+        let sample = PlusDiSample {
+            high: high[last_idx + i],
+            low: low[last_idx + i],
+            close: close[last_idx + i],
+        };
         let ok = new_state.update(sample);
         assert!(ok.is_ok());
-        ${Test_Rust_Check_Next_Outputs};
+        assert!(
+            approx_eq_float(new_state.prev_plus_di, expected_plus_di[last_idx + i], 1e-8),
+            "Next [{}] expected {} but got {}",
+            i,
+            expected_plus_di[last_idx + i],
+            new_state.prev_plus_di
+        );
     }
 }
 
 #[test]
 fn generated_with_no_lookahead_ok() {
-    generated_and_no_lookahead_${indicator_name}(
-        "${indicator_name}.csv",
-        // TODO: ADD INPUT ARGUMENTS
-    )
+    generated_and_no_lookahead_plus_di("plus_di.csv", 14)
 }
 
-// TODO: IMPLEMENTS ERR TESTS
+#[test]
+fn generated_with_no_lookahead_period_1_ok() {
+    generated_and_no_lookahead_plus_di("plus_di_timeperiod-1.csv", 1)
+}
+
 #[test]
 fn finite_extreme_err_overflow_or_ok_all_finite() {
-    // TODO: DEFINE DATA INPUTS
     let data = vec![
         Float::MAX - 3.0,
         Float::MAX - 2.0,
@@ -63,10 +80,10 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     ];
     let period = 3;
     expect_err_overflow_or_ok_with!(
-        ${indicator_name}(${Test_Rust_Dummy_Input_Args}),
-        |result: ${IndicatorName}Result| {
+        plus_di(&data, &data, &data, period),
+        |result: PlusDiResult| {
             assert!(
-                result.${indicator_name}.iter().skip(period).all(|v| v.is_finite()),
+                result.plus_di.iter().skip(period).all(|v| v.is_finite()),
                 "Expected all values to be finite"
             );
         }
@@ -77,11 +94,18 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
 fn next_with_finite_neg_extreme_err_overflow_or_ok_all_finite() {
     let data = vec![5.0, 10.0, 30.0, 3.0, 5.0, 6.0, 8.0];
     let period = 3;
-    let result = ${indicator_name}(${Test_Rust_Dummy_Input_Args}).unwrap();
+    let result = plus_di(&data, &data, &data, period).unwrap();
     let mut state = result.state;
-    let sample = ${Test_Rust_Next_Overflow_Create_Sample};
+    let sample = PlusDiSample {
+        high: Float::MIN + 5.0,
+        low: Float::MIN + 5.0,
+        close: Float::MIN + 5.0,
+    };
     expect_err_overflow_or_ok_with!(state.update(sample), |_| {
-        assert!(state.prev_${indicator_name}.is_finite(), "Expected all values to be finite");
+        assert!(
+            state.prev_plus_di.is_finite(),
+            "Expected all values to be finite"
+        );
     });
 }
 
@@ -89,17 +113,16 @@ fn next_with_finite_neg_extreme_err_overflow_or_ok_all_finite() {
 fn unexpected_nan_err() {
     let data = vec![1.0, 2.0, 3.0, Float::NAN, 1.0, 2.0, 3.0];
     let period = 3;
-    let result = ${indicator_name}(${Test_Rust_Dummy_Input_Args});
+    let result = plus_di(&data, &data, &data, period);
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::DataNonFinite(_))));
 }
 
 #[test]
 fn non_finite_err() {
-    //TODO: COMPLETE DATA INPUT
     let data = vec![1.0, 2.0, Float::INFINITY, 1.0, 2.0, 3.0];
     let period = 3;
-    let result =  ${indicator_name}(${Test_Rust_Dummy_Input_Args});
+    let result = plus_di(&data, &data, &data, period);
     assert!(
         result.is_err(),
         "Expected an error for non-finite data, got: {:?}",
@@ -110,10 +133,9 @@ fn non_finite_err() {
 
 #[test]
 fn empty_input_err() {
-    //TODO: COMPLETE DATA INPUT
     let data: [Float; 0] = [];
     let period = 3;
-    let result = ${indicator_name}(${Test_Rust_Dummy_Input_Args});
+    let result = plus_di(&data, &data, &data, period);
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::InsufficientData)));
 }
@@ -123,19 +145,7 @@ fn different_length_input_output_err() {
     let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
     let period = 3;
     let mut output = vec![0.0; 3];
-    let result = ${indicator_name}_into(${Test_Rust_Dummy_Input_Args}, ${Test_Rust_Dummy_Output_Args});
+    let result = plus_di_into(&data, &data, &data, period, output.as_mut_slice());
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::BadParam(_))));
 }
-
-// TODO: IMPLEMENTS OTHER TESTS
-
-// TODO: IMPLEMENTS proptest
-// proptest! {
-//     #[test]
-//     fn proptest(
-//        // TODO: DEFINE ARGS
-//     ) {
-
-//     }
-// }

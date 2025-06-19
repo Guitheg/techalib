@@ -57,37 +57,24 @@ def test_rust_create_sample(indicator_camel_case: str, fct_inputs: List[str]) ->
     return sample
 
 def test_rust_check_next_outputs(indicator_name: str, fct_outputs: List[str]) -> str:
-
-    """
-    example:
-
-        assert!(
-            approx_eq_float(new_state.${indicator_name}, expected[last_idx + i], 1e-8),
-            "Next [{}] expected {}, but got {}",
-            i,
-            expected[last_idx + i],
-            new_state.${indicator_name}
-        );
-    """
-
     if not fct_outputs:
         ret = "assert!(\n"
         ret += f"{T2}{T}approx_eq_float(new_state.{indicator_name}, expected[last_idx + i], 1e-8),\n"
         ret += f"{T2}{T}\"Next [{{}}] expected {{}} but got {{}}\""
         ret += f"\n{T2}{T}i,\n"
         ret += f"{T2}{T}expected[last_idx + i],\n"
-        ret += f"{T2}{T}new_state.{indicator_name}\n"
+        ret += f"{T2}{T}new_state.prev_{indicator_name}\n"
         ret += f"{T2});"
         return ret
     checks = []
     for output in fct_outputs:
         checks.append(
             f"assert!(\n"
-            f"{T2}{T}approx_eq_float(new_state.{output}, expected_{output}[last_idx + i], 1e-8),\n"
-            f"{T2}{T}\"Next [{{}}] expected {{}} but got {{}}\""
+            f"{T2}{T}approx_eq_float(new_state.prev_{output}, expected_{output}[last_idx + i], 1e-8),\n"
+            f"{T2}{T}\"Next [{{}}] expected {{}} but got {{}}\","
             f"\n{T2}{T}i,\n"
             f"{T2}{T}expected_{output}[last_idx + i],\n"
-            f"{T2}{T}new_state.{output}\n"
+            f"{T2}{T}new_state.prev_{output}\n"
             f"{T2});"
         )
     return f"\n{T2}".join(checks)

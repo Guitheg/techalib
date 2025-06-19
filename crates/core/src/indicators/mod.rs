@@ -9,6 +9,7 @@ pub mod midpoint;
 pub mod midprice;
 pub mod minus_di;
 pub mod minus_dm;
+pub mod plus_di;
 pub mod plus_dm;
 pub mod roc;
 pub mod rsi;

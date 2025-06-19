@@ -9,6 +9,7 @@ pub(crate) mod bench_midpoint;
 pub(crate) mod bench_midprice;
 pub(crate) mod bench_minus_di;
 pub(crate) mod bench_minus_dm;
+pub(crate) mod bench_plus_di;
 pub(crate) mod bench_plus_dm;
 pub(crate) mod bench_roc;
 pub(crate) mod bench_rsi;

@@ -309,7 +309,7 @@ fn init_plus_dm_unchecked(
 }
 
 #[inline(always)]
-fn plus_dm_next_unchecked(
+pub(crate) fn plus_dm_next_unchecked(
     high: Float,
     low: Float,
     prev_high: Float,
@@ -321,7 +321,12 @@ fn plus_dm_next_unchecked(
 }
 
 #[inline(always)]
-fn raw_plus_dm_unchecked(high: Float, low: Float, prev_high: Float, prev_low: Float) -> Float {
+pub(crate) fn raw_plus_dm_unchecked(
+    high: Float,
+    low: Float,
+    prev_high: Float,
+    prev_low: Float,
+) -> Float {
     let plus_delta = high - prev_high;
     if plus_delta > 0.0 && (prev_low - low) < plus_delta {
         plus_delta

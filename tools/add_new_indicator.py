@@ -134,7 +134,7 @@ def create_from_template(
                 "Py_Next_Signature": py_next_signature(fct_inputs),
                 "Py_Next_Args_Definition": py_next_args_definition(fct_inputs),
                 "Py_Next_CreateSample": py_next_create_sample(indicator_camel_case, fct_inputs),
-                "Py_ImportSample": py_import_sample(indicator_camel_case, fct_inputs),
+                "ImportSample": import_sample(indicator_camel_case, fct_inputs),
                 "PyStub_State_Attributes": py_stub_state_attributes(indicator_name, fct_outputs, fct_states, fct_params),
                 "PyStub_Results_Attributes": py_stub_results_attributes(indicator_name, fct_outputs),
                 "PyStub_Args": py_stub_args(fct_inputs, fct_params),

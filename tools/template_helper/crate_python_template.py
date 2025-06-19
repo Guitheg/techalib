@@ -292,7 +292,7 @@ def py_next_create_sample(
 
     return ret
 
-def py_import_sample(
+def import_sample(
     indicator_camel_case: str,
     fct_inputs: List[str],
 ) -> str:

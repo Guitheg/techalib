@@ -62,7 +62,7 @@ Possible inputs
 - Py_Next_Signature
 - Py_Next_Args_Definition
 - Py_Next_CreateSample
-- Py_ImportSample
+- ImportSample
 - PyStub_State_Attributes
 - PyStub_Results_Attributes
 - PyStub_Args

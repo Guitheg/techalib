@@ -1,4 +1,5 @@
 import argparse
+from timeit_bench.plus_di import benchmark_plus_di
 from timeit_bench.minus_di import benchmark_minus_di
 from timeit_bench.plus_dm import benchmark_plus_dm
 from timeit_bench.minus_dm import benchmark_minus_dm
@@ -20,6 +21,7 @@ from timeit_bench.ema import benchmark_ema
 from timeit_bench.macd import benchmark_macd
 
 BENCHMARKS = {
+    'plus_di': benchmark_plus_di,
     'minus_di': benchmark_minus_di,
     'plus_dm': benchmark_plus_dm,
     'minus_dm': benchmark_minus_dm,

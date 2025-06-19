@@ -1,6 +1,7 @@
 use pyo3::prelude::*;
 
 mod py_ad;
+mod py_adx;
 mod py_atr;
 mod py_bbands;
 mod py_dema;
@@ -98,5 +99,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_dx::dx, m)?)?;
     m.add_function(wrap_pyfunction!(py_dx::dx_next, m)?)?;
     m.add_class::<py_dx::PyDxState>()?;
+    m.add_function(wrap_pyfunction!(py_adx::adx, m)?)?;
+    m.add_function(wrap_pyfunction!(py_adx::adx_next, m)?)?;
+    m.add_class::<py_adx::PyAdxState>()?;
     Ok(())
 }

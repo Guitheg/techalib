@@ -44,6 +44,7 @@ CONFIG_DICT = {
     "MINUS_DI": Configuration(talib, "MINUS_DI", ["high", "low", "close"], dict(timeperiod=14), ["minus_di"]),
     "PLUS_DI": Configuration(talib, "PLUS_DI", ["high", "low", "close"], dict(timeperiod=14), ["plus_di"]),
     "DX": Configuration(talib, "DX", ["high", "low", "close"], dict(timeperiod=14), ["dx"]),
+    "ADX": Configuration(talib, "ADX", ["high", "low", "close"], dict(timeperiod=14), ["adx"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):

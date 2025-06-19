@@ -58,7 +58,7 @@ The number of supported indicators is set to increase.
 |                           | **kama** - Kaufman Adaptive Moving Average                      | ✅        |
 | **_Momentum_**            |||
 |                           | **macd** - Moving Average Convergence Divergence                | ✅        |
-|                           | **adx** - Average Directional Movement Index                    | ⬜        |
+|                           | **adx** - Average Directional Movement Index                    | ✅        |
 |                           | **aroon** - Aroon                                               | ⬜        |
 |                           | **dx** - Directional Movement Index                             | ✅        |
 |                           | **minus_di** - Minus Directional Indicator                      | ✅        |

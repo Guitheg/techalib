@@ -5,9 +5,9 @@ from typing import NamedTuple, Optional, Tuple, List
 from numpy.typing import NDArray
 
 @dataclass(frozen=True)
-class DxState:
-    """State for the Dx computation"""
-    prev_dx: float
+class AdxState:
+    """State for the Adx computation"""
+    prev_adx: float
     prev_true_range: float
     prev_plus_dm: float
     prev_minus_dm: float
@@ -17,20 +17,20 @@ class DxState:
     period: int
     ...
 
-class DxResult(NamedTuple):
-    """Result of the Dx computation"""
-    dx: NDArray
-    state: DxState
+class AdxResult(NamedTuple):
+    """Result of the Adx computation"""
+    adx: NDArray
+    state: AdxState
 
-def dx(
+def adx(
     high: NDArray,
     low: NDArray,
     close: NDArray,
     period: int = 14,
     release_gil: bool = False
-) -> DxResult | Tuple[NDArray, DxState]:
+) -> AdxResult | Tuple[NDArray, AdxState]:
     """
-    Dx: Directional Movement Index
+    Adx: Average Directional Index
     ----------
 
     Parameters
@@ -42,29 +42,29 @@ def dx(
     close : NDArray
         The close prices of the asset.
     period : int, default 14
-        The period over which to compute the Dx.
+        The period over which to compute the Adx.
     release_gil : bool, default False
         If ``True``, the GIL is released during the computation.
         This is useful when using this function in a multi-threaded context.
 
     Returns
     -------
-    DxResult
-        A named tuple containing the result of the Dx computation.
-        - dx: NDArray
+    AdxResult
+        A named tuple containing the result of the Adx computation.
+        - adx: NDArray
             The computed values.
-        - state: `DxState`
+        - state: `AdxState`
     """
     ...
 
-def dx_next(
+def adx_next(
     new_high: float,
     new_low: float,
     new_close: float,
-    state: DxState
-) -> DxState:
+    state: AdxState
+) -> AdxState:
     """
-    Update the Dx state with the next data.
+    Update the Adx state with the next data.
 
     Parameters
     ----------
@@ -74,12 +74,12 @@ def dx_next(
         The new low price.
     new_close : float
         The new close price.
-    state : DxState
-        The current state of the Dx computation.
+    state : AdxState
+        The current state of the Adx computation.
 
     Returns
     -------
-    DxState
+    AdxState
         The updated state after including the new value.
     """
     ...

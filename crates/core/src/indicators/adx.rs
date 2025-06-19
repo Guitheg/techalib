@@ -35,38 +35,35 @@
 */
 
 /*
-    Inspired by TA-LIB DX implementation
+    Inspired by TA-LIB ADX implementation
 */
 
-//! Directional Index (DX) implementation
+//! Average Directional Index (ADX) implementation
 
 use crate::errors::TechalibError;
-use crate::indicators::atr::calculate_true_range;
-use crate::indicators::minus_dm::{minus_dm_next_unchecked, raw_minus_dm_unchecked};
-use crate::indicators::plus_dm::{plus_dm_next_unchecked, raw_plus_dm_unchecked};
+use crate::indicators::dx::{dx_next_unchecked, init_dx_unchecked};
 use crate::traits::State;
 use crate::types::Float;
 
-/// DX calculation result
+/// ADX calculation result
 /// ---
-/// This struct holds the result and the state ([`DxState`])
+/// This struct holds the result and the state ([`AdxState`])
 /// of the calculation.
 ///
 /// Attributes
 /// ---
-/// - `dx`: A vector of [`Float`] values representing the
-///   Directional Index (DX) values calculated for the input data.
-/// - `state`: A [`DxState`], which can be used to calculate
+/// - `adx`: A vector of [`Float`] representing the calculated ADX values.
+/// - `state`: A [`AdxState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
-pub struct DxResult {
-    /// The DX values calculated for the input data.
-    pub dx: Vec<Float>,
-    /// The [`DxState`] state of the DX calculation.
-    pub state: DxState,
+pub struct AdxResult {
+    /// The calculated ADX values.
+    pub adx: Vec<Float>,
+    /// The [`AdxState`] state of the ADX calculation.
+    pub state: AdxState,
 }
 
-/// DX calculation state
+/// ADX calculation state
 /// ---
 /// This struct holds the state of the calculation.
 /// It is used to calculate the next values in a incremental way.
@@ -74,29 +71,30 @@ pub struct DxResult {
 /// Attributes
 /// ---
 /// **Previous outputs values**
-/// - `prev_dx`: The last calculated DX value.
+/// - `prev_adx`: The last calculated ADX value.
 ///
 /// **State values**
 /// - `prev_true_range`: The previous true range value.
-/// - `prev_plus_dm`: The previous positive directional movement (+DM) value.
-/// - `prev_minus_dm`: The previous negative directional movement (-DM) value.
+/// - `prev_plus_dm`: The previous positive directional movement value.
+/// - `prev_minus_dm`: The previous negative directional movement value.
 /// - `prev_high`: The previous high price.
 /// - `prev_low`: The previous low price.
 /// - `prev_close`: The previous close price.
 ///
 /// **Parameters**
-/// - `period`: The period used for the DX calculation.
-#[derive(Debug, Clone, Copy)]
-pub struct DxState {
+/// - `period`: The period used for the ADX calculation, which determines
+///   how many values are averaged to compute the ADX.
+#[derive(Debug, Clone)]
+pub struct AdxState {
     // Outputs
-    /// The last calculated DX value.
-    pub prev_dx: Float,
+    /// The last calculated ADX value.
+    pub prev_adx: Float,
     // State values
     /// The previous true range value.
     pub prev_true_range: Float,
-    /// The previous positive directional movement (+DM) value.
+    /// The previous positive directional movement value.
     pub prev_plus_dm: Float,
-    /// The previous negative directional movement (-DM) value.
+    /// The previous negative directional movement value.
     pub prev_minus_dm: Float,
     /// The previous high price.
     pub prev_high: Float,
@@ -105,16 +103,16 @@ pub struct DxState {
     /// The previous close price.
     pub prev_close: Float,
     // Parameters
-    /// The period used for the DX calculation.
+    /// The period used for the ADX calculation.
     pub period: usize,
 }
 
-/// DX sample
+/// ADX sample
 /// ---
-/// This struct represents a sample for the DX calculation.
+/// This struct represents a sample for the ADX calculation.
 /// It contains the high and low prices of the sample.
 #[derive(Debug, Clone, Copy)]
-pub struct DxSample {
+pub struct AdxSample {
     /// The high price of the sample.
     pub high: Float,
     /// The low price of the sample.
@@ -123,13 +121,13 @@ pub struct DxSample {
     pub close: Float,
 }
 
-impl State<DxSample> for DxState {
-    /// Update the [`DxState`] with a new sample
+impl State<&AdxSample> for AdxState {
+    /// Update the [`AdxState`] with a new sample
     ///
     /// Input Arguments
     /// ---
-    /// - `sample`: The new input to update the DX state
-    fn update(&mut self, sample: DxSample) -> Result<(), TechalibError> {
+    /// - `sample`: The new input to update the ADX state
+    fn update(&mut self, sample: &AdxSample) -> Result<(), TechalibError> {
         check_finite!(sample.high, sample.low, sample.close);
         check_finite!(self.prev_true_range);
         check_finite!(self.prev_plus_dm);
@@ -138,7 +136,8 @@ impl State<DxSample> for DxState {
         check_finite!(self.prev_low);
         check_finite!(self.prev_close);
 
-        let new_dx = dx_next_unchecked(
+        let new_adx = adx_next_unchecked(
+            self.prev_adx,
             sample.high,
             sample.low,
             &mut self.prev_true_range,
@@ -148,18 +147,20 @@ impl State<DxSample> for DxState {
             self.prev_low,
             self.prev_close,
             1.0 / self.period as Float,
+            self.period as Float - 1.0,
         );
 
-        check_finite!(&new_dx);
-        self.prev_dx = new_dx;
+        check_finite!(&new_adx);
+        self.prev_adx = new_adx;
         self.prev_high = sample.high;
         self.prev_low = sample.low;
         self.prev_close = sample.close;
+
         Ok(())
     }
 }
 
-/// Lookback period for DX calculation
+/// Lookback period for ADX calculation
 /// ---
 /// With `n = lookback_from_period(period)`,
 /// the `n-1` first values that will be return will be `NaN`
@@ -167,85 +168,90 @@ impl State<DxSample> for DxState {
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
     check_param_gte!(period, 2);
-    Ok(period)
+    Ok((period * 2) - 1)
 }
 
-/// Calculation of the DX function
+/// Calculation of the ADX function
 /// ---
-/// It returns a [`DxResult`]
+/// It returns a [`AdxResult`]
 ///
 /// Input Arguments
 /// ---
-/// - `high`: A slice of high prices.
-/// - `low`: A slice of low prices.
-/// - `close`: A slice of close prices.
-/// - `period`: The period used for the DX calculation.
+/// - `high`: A slice of [`Float`] representing the high prices.
+/// - `low`: A slice of [`Float`] representing the low prices.
+/// - `close`: A slice of [`Float`] representing the close prices.
+/// - `period`: The period for the ADX calculation.
 ///
 /// Returns
 /// ---
-/// A `Result` containing a [`DxResult`],
+/// A `Result` containing a [`AdxResult`],
 /// or a [`TechalibError`] error if the calculation fails.
-pub fn dx(
+pub fn adx(
     high: &[Float],
     low: &[Float],
     close: &[Float],
     period: usize,
-) -> Result<DxResult, TechalibError> {
-    let mut output_dx = vec![0.0; high.len()];
+) -> Result<AdxResult, TechalibError> {
+    let mut output_adx = vec![0.0; high.len()];
 
-    let dx_state = dx_into(high, low, close, period, output_dx.as_mut_slice())?;
+    let adx_state = adx_into(high, low, close, period, output_adx.as_mut_slice())?;
 
-    Ok(DxResult {
-        dx: output_dx,
-        state: dx_state,
+    Ok(AdxResult {
+        adx: output_adx,
+        state: adx_state,
     })
 }
 
-/// Calculation of the DX function
+/// Calculation of the ADX function
 /// ---
 /// It stores the results in the provided output arrays and
-/// return the state [`DxState`].
+/// return the state [`AdxState`].
 ///
 /// Input Arguments
 /// ---
-/// - `high`: A slice of high prices.
-/// - `low`: A slice of low prices.
-/// - `close`: A slice of close prices.
+/// - `high`: A slice of [`Float`] representing the high prices.
+/// - `low`: A slice of [`Float`] representing the low prices.
+/// - `close`: A slice of [`Float`] representing the close prices.
+/// - `period`: The period for the ADX calculation.
 ///
 /// Output Arguments
 /// ---
-/// - `period`: The period used for the DX calculation.
+/// - `output_adx`: A mutable slice of [`Float`] where the calculated ADX values
 ///
 /// Returns
 /// ---
-/// A `Result` containing a [`DxState`],
+/// A `Result` containing a [`AdxState`],
 /// or a [`TechalibError`] error if the calculation fails.
-pub fn dx_into(
+pub fn adx_into(
     high: &[Float],
     low: &[Float],
     close: &[Float],
     period: usize,
-    output_dx: &mut [Float],
-) -> Result<DxState, TechalibError> {
+    output_adx: &mut [Float],
+) -> Result<AdxState, TechalibError> {
     check_param_eq!(high.len(), low.len());
     check_param_eq!(high.len(), close.len());
-    check_param_eq!(high.len(), output_dx.len());
+    check_param_eq!(high.len(), output_adx.len());
     let len = high.len();
 
     let lookback = lookback_from_period(period)?;
-    let inv_period = 1.0 / period as Float;
+    let inv_period = 1.0 / (period as Float);
+    let period_minus_one = period as Float - 1.0;
 
     if len <= lookback {
         return Err(TechalibError::InsufficientData);
     }
 
-    let (mut true_range, mut plus_dm, mut minus_dm) =
-        init_dx_unchecked(high, low, close, lookback, output_dx)?;
+    let (first_output_adx, mut true_range, mut plus_dm, mut minus_dm) =
+        init_adx_unchecked(high, low, close, period, lookback, inv_period, output_adx)?;
+    output_adx[lookback] = first_output_adx;
+    check_finite_at!(lookback, output_adx);
 
-    for idx in lookback..len {
+    for idx in lookback + 1..len {
         check_finite_at!(idx, high, low, close);
 
-        output_dx[idx] = dx_next_unchecked(
+        output_adx[idx] = adx_next_unchecked(
+            output_adx[idx - 1],
             high[idx],
             low[idx],
             &mut true_range,
@@ -255,13 +261,14 @@ pub fn dx_into(
             low[idx - 1],
             close[idx - 1],
             inv_period,
+            period_minus_one,
         );
 
-        check_finite_at!(idx, output_dx);
+        check_finite_at!(idx, output_adx);
     }
 
-    Ok(DxState {
-        prev_dx: output_dx[len - 1],
+    Ok(AdxState {
+        prev_adx: output_adx[len - 1],
         prev_true_range: true_range,
         prev_plus_dm: plus_dm,
         prev_minus_dm: minus_dm,
@@ -273,32 +280,42 @@ pub fn dx_into(
 }
 
 #[inline(always)]
-pub(crate) fn init_dx_unchecked(
+fn init_adx_unchecked(
     high: &[Float],
     low: &[Float],
     close: &[Float],
+    period: usize,
     lookback: usize,
-    output_dx: &mut [Float],
-) -> Result<(Float, Float, Float), TechalibError> {
-    check_finite_at!(0, high, low, close);
-    output_dx[0] = Float::NAN;
-    let mut minus_dm_sum = 0.0;
-    let mut plus_dm_sum = 0.0;
-    let mut true_range_sum = 0.0;
-    for idx in 1..lookback {
+    inv_period: Float,
+    output_adx: &mut [Float],
+) -> Result<(Float, Float, Float, Float), TechalibError> {
+    let (mut true_range, mut plus_dm, mut minus_dm) =
+        init_dx_unchecked(high, low, close, period, output_adx)?;
+    let mut last_dx = 0.0;
+    let mut dx_sum = last_dx;
+    for idx in period..=lookback {
         check_finite_at!(idx, high, low, close);
-        minus_dm_sum += raw_minus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
-        plus_dm_sum += raw_plus_dm_unchecked(high[idx], low[idx], high[idx - 1], low[idx - 1]);
-        true_range_sum += calculate_true_range(high[idx], low[idx], close[idx - 1]);
-        output_dx[idx] = Float::NAN;
+        last_dx = dx_next_unchecked(
+            high[idx],
+            low[idx],
+            &mut true_range,
+            &mut plus_dm,
+            &mut minus_dm,
+            high[idx - 1],
+            low[idx - 1],
+            close[idx - 1],
+            inv_period,
+        );
+        dx_sum += last_dx;
+        output_adx[idx] = Float::NAN;
     }
-    check_finite_at!(lookback, high, low, close);
-    Ok((true_range_sum, plus_dm_sum, minus_dm_sum))
+    Ok((dx_sum * inv_period, true_range, plus_dm, minus_dm))
 }
 
 #[allow(clippy::too_many_arguments)]
 #[inline(always)]
-pub(crate) fn dx_next_unchecked(
+fn adx_next_unchecked(
+    prev_value: Float,
     new_high: Float,
     new_low: Float,
     true_range: &mut Float,
@@ -308,23 +325,12 @@ pub(crate) fn dx_next_unchecked(
     prev_low: Float,
     prev_close: Float,
     inv_period: Float,
+    period_minus_one: Float,
 ) -> Float {
-    *plus_dm +=
-        plus_dm_next_unchecked(new_high, new_low, prev_high, prev_low, *plus_dm, inv_period);
-    *minus_dm += minus_dm_next_unchecked(
-        new_high, new_low, prev_high, prev_low, *minus_dm, inv_period,
+    let new_dx = dx_next_unchecked(
+        new_high, new_low, true_range, plus_dm, minus_dm, prev_high, prev_low, prev_close,
+        inv_period,
     );
-    *true_range += -*true_range * inv_period + calculate_true_range(new_high, new_low, prev_close);
-    if *true_range == 0.0 {
-        return 0.0;
-    }
-    calculate_dx(*plus_dm / *true_range, *minus_dm / *true_range)
-}
 
-#[inline(always)]
-fn calculate_dx(plus_di: Float, minus_di: Float) -> Float {
-    if plus_di + minus_di == 0.0 {
-        return 0.0;
-    }
-    ((plus_di - minus_di).abs() / (plus_di + minus_di)) * 100.0
+    (prev_value * period_minus_one + new_dx) * inv_period
 }

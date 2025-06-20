@@ -1,6 +1,4 @@
 import techalib as tb
-from numpy import testing
-import numpy as np
 
 def test_ad_numpy_success(test_numpy_with_generated_data):
     def ad(high, low, close, volume):

@@ -40,11 +40,10 @@
 
 //! Kaufman Adaptive Moving Average (KAMA) implementation
 
-use std::collections::VecDeque;
-
 use crate::errors::TechalibError;
 use crate::traits::State;
 use crate::types::Float;
+use std::collections::VecDeque;
 
 /// Fast period for KAMA calculation. It is used to calculate the Smoothing Constant (SC).
 pub const FAST_PERIOD: Float = 2.0;
@@ -61,13 +60,13 @@ const SC_DELTA: Float = (2.0 / (FAST_PERIOD + 1.0)) - SC_SLOW;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] containing the calculated KAMA values.
+/// - `kama`: A vector of [`Float`] containing the calculated KAMA values.
 /// - `state`: A [`KamaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct KamaResult {
     /// The calculated KAMA values.
-    pub values: Vec<Float>,
+    pub kama: Vec<Float>,
     /// The [`KamaState`] state of the KAMA calculation.
     pub state: KamaState,
 }
@@ -118,11 +117,11 @@ impl State<Float> for KamaState {
     /// ---
     /// - `sample`: The new input to update the KAMA state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_finite(self.kama, "kama")?;
-        TechalibError::check_finite(self.roc_sum, "roc_sum")?;
-        TechalibError::check_finite(self.trailing_value, "trailing_value")?;
-        TechalibError::check_period(self.period)?;
+        check_finite!(sample);
+        check_finite!(self.kama);
+        check_finite!(self.roc_sum);
+        check_finite!(self.trailing_value);
+        check_param_gte!(self.period, 2);
 
         if self.last_window.len() != self.period {
             return Err(TechalibError::BadParam(format!(
@@ -154,7 +153,7 @@ impl State<Float> for KamaState {
             self.roc_sum,
             self.kama,
         );
-        TechalibError::check_overflow(kama)?;
+        check_finite!(kama);
         self.kama = kama;
         self.roc_sum = roc_sum;
         self.last_window = window;
@@ -171,7 +170,7 @@ impl State<Float> for KamaState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(period)
 }
 
@@ -194,7 +193,7 @@ pub fn kama(data: &[Float], period: usize) -> Result<KamaResult, TechalibError> 
     let kama_state = kama_into(data, period, output.as_mut_slice())?;
 
     Ok(KamaResult {
-        values: output,
+        kama: output,
         state: kama_state,
     })
 }
@@ -222,7 +221,7 @@ pub fn kama_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<KamaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
     let lookback = lookback_from_period(period)?;
 
@@ -231,11 +230,8 @@ pub fn kama_into(
     }
 
     let (kama, mut roc_sum) = init_kama_unchecked(data, lookback, output)?;
-
-    if !kama.is_finite() {
-        return Err(TechalibError::Overflow(lookback, output[lookback]));
-    }
     output[lookback] = kama;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
         if !data[idx].is_finite() {
@@ -254,9 +250,7 @@ pub fn kama_into(
             output[idx - 1],
         );
 
-        if !output[idx].is_finite() {
-            return Err(TechalibError::Overflow(idx, output[idx]));
-        }
+        check_finite_at!(idx, output);
     }
 
     Ok(KamaState {

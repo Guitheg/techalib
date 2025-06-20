@@ -14,7 +14,7 @@ class AtrState:
 
 class AtrResult(NamedTuple):
     """Result of the Atr computation"""
-    out: NDArray
+    atr: NDArray
     state: AtrState
 
 def atr(
@@ -47,7 +47,7 @@ def atr(
     -------
     AtrResult
         A named tuple containing the result of the Atr computation.
-        - values: NDArray
+        - atr: NDArray
             The computed values.
         - state: `AtrState`
     """

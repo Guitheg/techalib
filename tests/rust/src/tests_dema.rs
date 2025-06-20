@@ -19,7 +19,7 @@ fn generated_and_no_lookahead_dema(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("dema").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -31,7 +31,7 @@ fn generated_and_no_lookahead_dema(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.dema);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -63,7 +63,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(dema(&data, period, None), |result: DemaResult| {
         assert!(
-            result.values.iter().skip(period + 1).all(|v| v.is_finite()),
+            result.dema.iter().skip(period + 1).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });
@@ -130,7 +130,7 @@ fn constant_input() {
     let result = dema(&data, period, None).unwrap();
     assert!(
         result
-            .values
+            .dema
             .iter()
             .skip(lookback_from_period(period).unwrap())
             .all(|&v| approx_eq_float(v, 10.0, 1e-8)),
@@ -145,7 +145,7 @@ fn increasing_input() {
     let result = dema(&data, period, None).unwrap();
     assert!(
         result
-            .values
+            .dema
             .iter()
             .zip(data.iter())
             .skip(lookback_from_period(period).unwrap())
@@ -161,7 +161,7 @@ fn decreasing_input() {
     let result = dema(&data, period, None).unwrap();
     assert!(
         result
-            .values
+            .dema
             .iter()
             .zip(data.iter())
             .skip(lookback_from_period(period).unwrap())

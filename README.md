@@ -58,18 +58,17 @@ The number of supported indicators is set to increase.
 |                           | **kama** - Kaufman Adaptive Moving Average                      | ✅        |
 | **_Momentum_**            |||
 |                           | **macd** - Moving Average Convergence Divergence                | ✅        |
-|                           | **adx** - Average Directional Movement Index                    | ⬜        |
-|                           | **aroon** - Aroon                                               | ⬜        |
-|                           | **dx** - Directional Movement Index                             | ⬜        |
-|                           | **minus_di** - Minus Directional Indicator                      | ⬜        |
-|                           | **minus_dm** - Minus Directional Movement                       | ⬜        |
-|                           | **plus_di** - Plus Directional Indicator                        | ⬜        |
-|                           | **plus_dm** - Plus Directional Movement                         | ⬜        |
+|                           | **adx** - Average Directional Movement Index                    | ✅        |
+|                           | **aroon** - Aroon                                               | ✅        |
+|                           | **dx** - Directional Movement Index                             | ✅        |
+|                           | **minus_di** - Minus Directional Indicator                      | ✅        |
+|                           | **minus_dm** - Minus Directional Movement                       | ✅        |
+|                           | **plus_di** - Plus Directional Indicator                        | ✅        |
+|                           | **plus_dm** - Plus Directional Movement                         | ✅        |
 |                           | **roc** - Rate of change                                        | ✅        |
-|                           | **rocr** - Rate of change ratio                                 | ⬜        |
-|                           | **rocr100** - Rate of change ratio 100 scale                    | ⬜        |
+|                           | **rocr** - Rate of change ratio                                 | ✅        |
 | _Oscillator_              | **rsi** - Relative Strength Index                               | ✅        |
-|                           | **aroonosc** - Aroon Oscillator                                 | ⬜        |
+|                           | **aroonosc** - Aroon Oscillator                                 | ✅        |
 | **_Volume_**              |||
 |                           | **ad** - Chaikin A/D Line                                       | ✅        |
 | **_Volatility_**          |||

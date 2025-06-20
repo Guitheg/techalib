@@ -182,16 +182,13 @@ impl State<Float> for BBandsState {
     /// ---
     /// - `sample`: The new input value to update the Bollinger Bands state. Generally, it is the closing price.
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_period(self.period)?;
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_finite(self.moving_averages.sma, "self.moving_averages.sma")?;
-        TechalibError::check_finite(
-            self.moving_averages.ma_square,
-            "self.moving_averages.ma_square",
-        )?;
-        TechalibError::check_finite(self.middle, "self.middle")?;
-        TechalibError::check_finite(self.std_dev_mult.up, "self.std_dev_mult.up")?;
-        TechalibError::check_finite(self.std_dev_mult.down, "self.std_dev_mult.down")?;
+        check_param_gte!(self.period, 2);
+        check_finite!(sample);
+        check_finite!(self.moving_averages.sma);
+        check_finite!(self.moving_averages.ma_square);
+        check_finite!(self.middle);
+        check_finite!(self.std_dev_mult.up);
+        check_finite!(self.std_dev_mult.down);
         if self.std_dev_mult.up <= 0.0 || self.std_dev_mult.down <= 0.0 {
             return Err(TechalibError::BadParam(
                 "Standard deviations must be greater than 0".to_string(),
@@ -244,9 +241,9 @@ impl State<Float> for BBandsState {
             }
         };
 
-        TechalibError::check_overflow(upper)?;
-        TechalibError::check_overflow(middle)?;
-        TechalibError::check_overflow(lower)?;
+        check_finite!(upper);
+        check_finite!(middle);
+        check_finite!(lower);
 
         self.upper = upper;
         self.middle = middle;
@@ -380,7 +377,7 @@ pub fn bbands_into(
     match ma_type {
         BBandsMA::SMA => {
             for idx in lookback + 1..len {
-                TechalibError::check_finite_at(idx, data)?;
+                check_finite_at!(idx, data);
                 (
                     output_upper[idx],
                     output_middle[idx],
@@ -395,15 +392,15 @@ pub fn bbands_into(
                     std_dev_mul,
                     inv_period,
                 );
-                TechalibError::check_overflow_at(idx, output_upper)?;
-                TechalibError::check_overflow_at(idx, output_middle)?;
-                TechalibError::check_overflow_at(idx, output_lower)?;
+                check_finite_at!(idx, output_upper);
+                check_finite_at!(idx, output_middle);
+                check_finite_at!(idx, output_lower);
             }
         }
         BBandsMA::EMA(alpha) => {
             let alpha = get_alpha_value(alpha, period)?;
             for idx in lookback + 1..len {
-                TechalibError::check_finite_at(idx, data)?;
+                check_finite_at!(idx, data);
                 (
                     output_upper[idx],
                     output_middle[idx],
@@ -419,9 +416,9 @@ pub fn bbands_into(
                     std_dev_mul,
                     inv_period,
                 );
-                TechalibError::check_overflow_at(idx, output_upper)?;
-                TechalibError::check_overflow_at(idx, output_middle)?;
-                TechalibError::check_overflow_at(idx, output_lower)?;
+                check_finite_at!(idx, output_upper);
+                check_finite_at!(idx, output_middle);
+                check_finite_at!(idx, output_lower);
             }
         }
     }
@@ -527,23 +524,6 @@ fn init_state_unchecked(
         std.up,
         std.down,
     );
-    if !output_middle[period - 1].is_finite() {
-        return Err(TechalibError::Overflow(
-            period - 1,
-            output_middle[period - 1],
-        ));
-    }
-    if !output_upper[period - 1].is_finite() {
-        return Err(TechalibError::Overflow(
-            period - 1,
-            output_upper[period - 1],
-        ));
-    }
-    if !output_lower[period - 1].is_finite() {
-        return Err(TechalibError::Overflow(
-            period - 1,
-            output_lower[period - 1],
-        ));
-    }
+    check_finite_at!(period - 1, output_upper, output_middle, output_lower);
     Ok(ma_sq)
 }

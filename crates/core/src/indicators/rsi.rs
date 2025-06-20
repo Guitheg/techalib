@@ -51,13 +51,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated RSI values.
+/// - `rsi`: A vector of [`Float`] representing the calculated RSI values.
 /// - `state`: A [`RsiState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct RsiResult {
     /// The calculated RSI values.
-    pub values: Vec<Float>,
+    pub rsi: Vec<Float>,
     /// A [`RsiState`], which can be used to calculate
     /// the next values incrementally.
     pub state: RsiState,
@@ -142,9 +142,9 @@ impl State<Float> for RsiState {
             self.avg_loss,
             1.0 / self.period as Float,
         );
-        if !rsi.is_finite() {
-            return Err(TechalibError::Overflow(0, rsi));
-        }
+
+        check_finite!(rsi);
+
         self.rsi = rsi;
         self.prev_value = sample;
         self.avg_gain = avg_gain;
@@ -160,7 +160,7 @@ impl State<Float> for RsiState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(period)
 }
 
@@ -182,7 +182,7 @@ pub fn rsi(data: &[Float], period: usize) -> Result<RsiResult, TechalibError> {
     let mut output = vec![0.0; size];
     let rsi_state = rsi_into(data, period, output.as_mut_slice())?;
     Ok(RsiResult {
-        values: output,
+        rsi: output,
         state: rsi_state,
     })
 }
@@ -210,8 +210,8 @@ pub fn rsi_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<RsiState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
-    TechalibError::check_period(period)?;
+    check_param_eq!(data.len(), output.len());
+    check_param_gte!(period, 2);
     let len = data.len();
     let inv_period = 1.0 / period as Float;
     if len <= period {
@@ -221,9 +221,9 @@ pub fn rsi_into(
     let mut avg_gain: Float = 0.0;
     let mut avg_loss: Float = 0.0;
     output[0] = Float::NAN;
-    TechalibError::check_finite_at(0, data)?;
+    check_finite_at!(0, data);
     for i in 1..=period {
-        TechalibError::check_finite_at(i, data)?;
+        check_finite_at!(i, data);
         let delta = data[i] - data[i - 1];
         if delta > 0.0 {
             avg_gain += delta;
@@ -235,13 +235,13 @@ pub fn rsi_into(
     avg_gain *= inv_period;
     avg_loss *= inv_period;
     output[period] = calculate_rsi(avg_gain, avg_loss);
-    TechalibError::check_overflow_at(period, output)?;
+    check_finite_at!(period, output);
 
     for i in (period + 1)..len {
-        TechalibError::check_finite_at(i, data)?;
+        check_finite_at!(i, data);
         (output[i], avg_gain, avg_loss) =
             rsi_next_unchecked(data[i] - data[i - 1], avg_gain, avg_loss, inv_period);
-        TechalibError::check_overflow_at(i, output)?;
+        check_finite_at!(i, output);
     }
     Ok(RsiState {
         rsi: output[len - 1],

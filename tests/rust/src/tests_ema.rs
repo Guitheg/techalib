@@ -21,7 +21,7 @@ fn generated_and_no_lookahead_ema(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("ema").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -33,7 +33,7 @@ fn generated_and_no_lookahead_ema(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.ema);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -65,7 +65,7 @@ fn period_higher_bound() {
     let data = vec![1.0, 2.0, 3.0];
     let result = ema(&data, 3, None);
     assert!(result.is_ok());
-    let out = result.unwrap().values;
+    let out = result.unwrap().ema;
     assert!(out[2] == 2.0);
 }
 
@@ -122,7 +122,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(ema(&data, period, None), |result: EmaResult| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.ema.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });
@@ -163,14 +163,14 @@ proptest! {
             prop_assert!(out.is_err());
             prop_assert!(matches!(out, Err(TechalibError::DataNonFinite(_))));
         } else {
-            let out = out.unwrap().values;
+            let out = out.unwrap().ema;
 
             prop_assert_eq!(out.len(), input.len());
             prop_assert!(out[..window-1].iter().all(|v| v.is_nan()));
 
             let k = 7.0 as Float;
             let scaled_input: Vec<_> = input.iter().map(|v| v*k).collect();
-            let scaled_fast = ema(&scaled_input, window, None).unwrap().values;
+            let scaled_fast = ema(&scaled_input, window, None).unwrap().ema;
 
             for (orig, scaled) in out.iter().zip(&scaled_fast) {
                 if orig.is_nan() {

@@ -52,13 +52,13 @@ use std::collections::VecDeque;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated SMA values.
+/// - `sma`: A vector of [`Float`] representing the calculated SMA values.
 /// - `state`: A [`SmaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct SmaResult {
     /// The calculated SMA values.
-    pub values: Vec<Float>,
+    pub sma: Vec<Float>,
     /// A [`SmaState`], which can be used to calculate
     /// the next values incrementally.
     pub state: SmaState,
@@ -105,25 +105,12 @@ impl State<Float> for SmaState {
     /// ---
     /// - `sample`: The new input to update the SMA state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_period(self.period)?;
-        TechalibError::check_finite(self.sma, "sma")?;
-        TechalibError::check_finite(sample, "sample")?;
+        check_param_gte!(self.period, 2);
+        check_finite!(self.sma);
+        check_finite!(sample);
 
-        if self.last_window.len() != self.period {
-            return Err(TechalibError::BadParam(format!(
-                "SMA state last_window length ({}) does not match period ({})",
-                self.last_window.len(),
-                self.period
-            )));
-        }
-
-        for (idx, &value) in self.last_window.iter().enumerate() {
-            if !value.is_finite() {
-                return Err(TechalibError::DataNonFinite(format!(
-                    "window[{idx}] = {value:?}"
-                )));
-            }
-        }
+        check_param_eq!(self.last_window.len(), self.period);
+        check_vec_finite!(self.last_window);
 
         let mut window = self.last_window.clone();
 
@@ -131,7 +118,7 @@ impl State<Float> for SmaState {
         window.push_back(sample);
 
         let sma = sma_next_unchecked(sample, old_value, self.sma, 1.0 / (self.period as Float));
-        TechalibError::check_overflow(sma)?;
+        check_finite!(sma);
         self.sma = sma;
         self.last_window = window;
 
@@ -146,7 +133,7 @@ impl State<Float> for SmaState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(period - 1)
 }
 
@@ -167,7 +154,7 @@ pub fn sma(data: &[Float], period: usize) -> Result<SmaResult, TechalibError> {
     let mut output = vec![0.0; len];
     let sma_state = sma_into(data, period, &mut output)?;
     Ok(SmaResult {
-        values: output,
+        sma: output,
         state: sma_state,
     })
 }
@@ -196,7 +183,7 @@ pub fn sma_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<SmaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
     let inv_period = 1.0 / (period as Float);
     let lookback = lookback_from_period(period)?;
@@ -205,13 +192,13 @@ pub fn sma_into(
     }
 
     output[lookback] = init_sma_unchecked(data, period, inv_period, output)?;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in period..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         output[idx] =
             sma_next_unchecked(data[idx], data[idx - period], output[idx - 1], inv_period);
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
     Ok(SmaState {
         sma: output[len - 1],

@@ -5,37 +5,37 @@ import techalib as tx
 import talib
 
 def benchmark_${indicator_name}():
-    iterations = 50
-    # TODO: DEFINE INPUT DATA
-    data = np.random.random(5_000_000)
-
-    duration = timeit.timeit(lambda: talib.${INDICATORNAME}(data), number=iterations)
-    average_time_c = duration / iterations
-
-    duration = timeit.timeit(lambda: tx.${indicator_name}(data), number=iterations)
-    average_time_rs = duration / iterations
-
-    print_benchmark(iterations, {"length": len(data)}, rust=average_time_rs, c=average_time_c)
+    ${Bench_Init_Param}
 
     iterations = 50
-    # TODO: DEFINE INPUT DATA
-    data = np.random.random(1_000_000)
+    ${Bench_Data_Init_5M}
 
-    duration = timeit.timeit(lambda: talib.${INDICATORNAME}(data), number=iterations)
+    duration = timeit.timeit(lambda: talib.${INDICATORNAME}(${Bench_Data_Args}), number=iterations)
     average_time_c = duration / iterations
 
-    duration = timeit.timeit(lambda: tx.${indicator_name}(data), number=iterations)
+    duration = timeit.timeit(lambda: tx.${indicator_name}(${Bench_Data_Args}), number=iterations)
     average_time_rs = duration / iterations
 
-    print_benchmark(iterations, {"length": len(data)}, rust=average_time_rs, c=average_time_c)
+    print_benchmark(iterations, {"length": ${Bench_Length}}, rust=average_time_rs, c=average_time_c)
 
     iterations = 50
-    data = np.random.random(50_000)
+    ${Bench_Data_Init_1M}
 
-    duration = timeit.timeit(lambda: talib.${INDICATORNAME}(data), number=iterations)
+    duration = timeit.timeit(lambda: talib.${INDICATORNAME}(${Bench_Data_Args}), number=iterations)
     average_time_c = duration / iterations
 
-    duration = timeit.timeit(lambda: tx.${indicator_name}(data), number=iterations)
+    duration = timeit.timeit(lambda: tx.${indicator_name}(${Bench_Data_Args}), number=iterations)
     average_time_rs = duration / iterations
 
-    print_benchmark(iterations, {"length": len(data)}, rust=average_time_rs, c=average_time_c)
+    print_benchmark(iterations, {"length": ${Bench_Length}}, rust=average_time_rs, c=average_time_c)
+
+    iterations = 50
+    ${Bench_Data_Init_50K}
+
+    duration = timeit.timeit(lambda: talib.${INDICATORNAME}(${Bench_Data_Args}), number=iterations)
+    average_time_c = duration / iterations
+
+    duration = timeit.timeit(lambda: tx.${indicator_name}(${Bench_Data_Args}), number=iterations)
+    average_time_rs = duration / iterations
+
+    print_benchmark(iterations, {"length": ${Bench_Length}}, rust=average_time_rs, c=average_time_c)

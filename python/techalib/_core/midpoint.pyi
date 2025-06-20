@@ -14,7 +14,7 @@ class MidpointState:
 
 class MidpointResult(NamedTuple):
     """Result of the Midpoint computation"""
-    values: NDArray
+    midpoint: NDArray
     state: MidpointState
 
 def midpoint(
@@ -39,8 +39,8 @@ def midpoint(
     -------
     MidpointResult
         A named tuple containing the result of the Midpoint computation.
-        - ... TODO:OUTPUTS
-        - state: **MidpointState** with (TODO:ATTRIBUTES)
+        - midpoint: **NDArray** with the computed Midpoint values.
+        - state: **MidpointState**
     """
     ...
 

@@ -13,7 +13,7 @@ class SmaState:
 
 class SmaResult(NamedTuple):
     """Result of the SMA computation"""
-    values: NDArray
+    sma: NDArray
     state: SmaState
 
 def sma(
@@ -41,7 +41,7 @@ def sma(
     -------
     SmaResult
         A named tuple containing the result of the SMA computation.
-        - values: **1-D array** of the same length as *data* containing the SMA.
+        - sma: **1-D array** of the same length as *data* containing the SMA.
         - state: **SmaState** (sma: float, period: int, window: List[float])
 
     """

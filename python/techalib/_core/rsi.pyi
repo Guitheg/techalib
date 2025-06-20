@@ -10,17 +10,11 @@ class RsiState:
     avg_gain: float
     avg_loss: float
     period: int
-
-    def __repr__(self):
-        return (f"RsiState(rsi={self.rsi:.4f}, "
-                f"avg_gain={self.avg_gain:.4f}, "
-                f"avg_loss={self.avg_loss:.4f}, "
-                f"period={self.period})")
     ...
 
 class RsiResult(NamedTuple):
     """Result of the RSI computation"""
-    values: NDArray
+    rsi: NDArray
     state: RsiState
 
 def rsi(
@@ -48,7 +42,7 @@ def rsi(
     -------
     RsiResult
         A named tuple containing the result of the RSI computation.
-        - values: **1-D array** of the same length as *data* containing the RSI.
+        - rsi: **1-D array** of the same length as *data* containing the RSI.
         - state: **RsiState** (rsi: float, avg_gain: float, avg_loss: float, period: int)
     """
     ...

@@ -53,13 +53,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated T3 values.
+/// - `t3`: A vector of [`Float`] representing the calculated T3 values.
 /// - `state`: A [`T3State`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct T3Result {
     /// The calculated T3 values.
-    pub values: Vec<Float>,
+    pub t3: Vec<Float>,
     /// The [`T3State`] state of the T3 calculation.
     pub state: T3State,
 }
@@ -164,8 +164,8 @@ impl State<Float> for T3State {
     /// ---
     /// - `sample`: The new input to update the T3 state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_finite(self.t3, "t3")?;
-        TechalibError::check_finite(sample, "sample")?;
+        check_finite!(self.t3);
+        check_finite!(sample);
         if !self.ema_values.ema1.is_finite()
             || !self.ema_values.ema2.is_finite()
             || !self.ema_values.ema3.is_finite()
@@ -219,7 +219,7 @@ impl State<Float> for T3State {
             self.alpha,
         );
 
-        TechalibError::check_overflow(t3)?;
+        check_finite!(t3);
 
         self.t3 = t3;
         // ema values update in place (no need to reassign)
@@ -235,7 +235,7 @@ impl State<Float> for T3State {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(6 * (period - 1))
 }
 
@@ -265,7 +265,7 @@ pub fn t3(
     let t3_state = t3_into(data, period, volume_factor, alpha, output.as_mut_slice())?;
 
     Ok(T3Result {
-        values: output,
+        t3: output,
         state: t3_state,
     })
 }
@@ -297,7 +297,7 @@ pub fn t3_into(
     alpha: Option<Float>,
     output: &mut [Float],
 ) -> Result<T3State, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
     let lookback = lookback_from_period(period)?;
 
@@ -327,12 +327,12 @@ pub fn t3_into(
     )?;
 
     output[lookback] = t3;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         output[idx] = t3_next_unchecked(data[idx], &mut t3_ema_values, &t3_coefficients, alpha);
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(T3State {

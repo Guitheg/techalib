@@ -3,48 +3,41 @@ use crate::helper::{
     generated::{assert_vec_eq_gen_data, load_generated_csv},
 };
 
-use proptest::{collection::vec, prelude::*};
 use techalib::{
     errors::TechalibError,
     indicators::${indicator_name}::{
         ${indicator_name},
+        ${indicator_name}_into,
         ${IndicatorName}Result,
-        ${IndicatorName}State
+        ${ImportSample}
     },
     traits::State,
     types::Float,
 };
 use crate::expect_err_overflow_or_ok_with;
 
-fn generated_and_no_lookahead_${indicator_name}(file_name: &str, period: usize) {
-    // TODO: IMPLEMENT TEST FUNCTION
+fn generated_and_no_lookahead_${indicator_name}(file_name: &str, ${Test_Rust_Params}) {
     let columns = load_generated_csv(file_name).unwrap();
-    let input = columns.get("close").unwrap();
 
-    let len = input.len();
+    ${Test_Rust_Get_Data_Input}
+
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    ${Test_Rust_Get_Expected}
 
-    let input_prev = &input[0..last_idx];
-
-    let output = ${indicator_name}(input_prev, period);
+    let output = ${indicator_name}(${Test_Rust_Fct_Args});
     assert!(output.is_ok(), "Failed to calculate ${INDICATORNAME}: {:?}", output.err());
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    ${Test_Rust_Check_outputs}
 
     let mut new_state = result.state;
     for i in 0..next_count {
-        new_state.update(input[last_idx + i]).unwrap();
-        assert!(
-            approx_eq_float(new_state.${indicator_name}, expected[last_idx + i], 1e-8),
-            "Next [{}] expected {}, but got {}",
-            i,
-            expected[last_idx + i],
-            new_state.${indicator_name}
-        );
+        let sample = ${Test_Rust_Create_Sample};
+        let ok = new_state.update(sample);
+        assert!(ok.is_ok());
+        ${Test_Rust_Check_Next_Outputs};
     }
 }
 
@@ -52,7 +45,6 @@ fn generated_and_no_lookahead_${indicator_name}(file_name: &str, period: usize) 
 fn generated_with_no_lookahead_ok() {
     generated_and_no_lookahead_${indicator_name}(
         "${indicator_name}.csv",
-        30,
         // TODO: ADD INPUT ARGUMENTS
     )
 }
@@ -71,10 +63,10 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     ];
     let period = 3;
     expect_err_overflow_or_ok_with!(
-        ${indicator_name}(&data, period),
+        ${indicator_name}(${Test_Rust_Dummy_Input_Args}),
         |result: ${IndicatorName}Result| {
             assert!(
-                result.values.iter().skip(period).all(|v| v.is_finite()),
+                result.${indicator_name}.iter().skip(period).all(|v| v.is_finite()),
                 "Expected all values to be finite"
             );
         }
@@ -85,19 +77,19 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
 fn next_with_finite_neg_extreme_err_overflow_or_ok_all_finite() {
     let data = vec![5.0, 10.0, 30.0, 3.0, 5.0, 6.0, 8.0];
     let period = 3;
-    let result = ${indicator_name}(&data, period).unwrap();
+    let result = ${indicator_name}(${Test_Rust_Dummy_Input_Args}).unwrap();
     let mut state = result.state;
-    expect_err_overflow_or_ok_with!(state.update(Float::MIN + 5.0), |_| {
-        assert!(state.${indicator_name}.is_finite(), "Expected all values to be finite");
+    let sample = ${Test_Rust_Next_Overflow_Create_Sample};
+    expect_err_overflow_or_ok_with!(state.update(sample), |_| {
+        assert!(state.prev_${indicator_name}.is_finite(), "Expected all values to be finite");
     });
 }
 
 #[test]
 fn unexpected_nan_err() {
-    //TODO: COMPLETE DATA INPUT
     let data = vec![1.0, 2.0, 3.0, Float::NAN, 1.0, 2.0, 3.0];
     let period = 3;
-    let result = ${indicator_name}(&data, period);
+    let result = ${indicator_name}(${Test_Rust_Dummy_Input_Args});
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::DataNonFinite(_))));
 }
@@ -107,7 +99,7 @@ fn non_finite_err() {
     //TODO: COMPLETE DATA INPUT
     let data = vec![1.0, 2.0, Float::INFINITY, 1.0, 2.0, 3.0];
     let period = 3;
-    let result =  ${indicator_name}(&data, period);
+    let result =  ${indicator_name}(${Test_Rust_Dummy_Input_Args});
     assert!(
         result.is_err(),
         "Expected an error for non-finite data, got: {:?}",
@@ -120,18 +112,18 @@ fn non_finite_err() {
 fn empty_input_err() {
     //TODO: COMPLETE DATA INPUT
     let data: [Float; 0] = [];
-    let period = 14;
-    let result = ${indicator_name}(&data, period);
+    let period = 3;
+    let result = ${indicator_name}(${Test_Rust_Dummy_Input_Args});
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::InsufficientData)));
 }
 
 #[test]
 fn different_length_input_output_err() {
-    let input = vec![1.0, 2.0, 3.0, 4.0, 5.0];
-    let mut output = vec![0.0; 3];
+    let data = vec![1.0, 2.0, 3.0, 4.0, 5.0];
     let period = 3;
-    let result = ${indicator_name}_into(&input, period, output.as_mut_slice());
+    let mut output = vec![0.0; 3];
+    let result = ${indicator_name}_into(${Test_Rust_Dummy_Input_Args}, ${Test_Rust_Dummy_Output_Args});
     assert!(result.is_err());
     assert!(matches!(result, Err(TechalibError::BadParam(_))));
 }

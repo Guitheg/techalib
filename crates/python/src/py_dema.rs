@@ -71,10 +71,7 @@ impl PyDemaState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "DemaState(dema={}, ema_1={}, ema_2={}, period={}, alpha={:?})",
-            self.dema, self.ema_1, self.ema_2, self.period, self.alpha
-        )
+        format!("{:?}", self)
     }
 }
 impl From<DemaState> for PyDemaState {

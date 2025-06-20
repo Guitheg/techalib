@@ -19,7 +19,7 @@ fn generated_and_no_lookahead_t3(file_name: &str, period: usize, vfactor: Float)
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("t3").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -27,7 +27,7 @@ fn generated_and_no_lookahead_t3(file_name: &str, period: usize, vfactor: Float)
     assert!(output.is_ok(), "Failed to calculate T3: {:?}", output.err());
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.t3);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -75,7 +75,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(t3(&data, period, 0.7, None), |result: T3Result| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.t3.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });

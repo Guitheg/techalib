@@ -25,7 +25,7 @@ class T3State:
 
 class T3Result(NamedTuple):
     """Result of the T3 computation"""
-    values: NDArray
+    t3: NDArray
     state: T3State
 
 def t3(
@@ -59,10 +59,8 @@ def t3(
     -------
     T3Result
         A named tuple containing the result of the T3 computation.
-        - values: **NDArray** of the same length as *data* containing the T3 values.
-        - state: **T3State** with (t3: float, ema1: float, ema2: float, ema3: float,
-        ema4: float, ema5: float, ema6: float, period: int, alpha: float, vfactor: float,
-        c1: float, c2: float, c3: float, c4: float)
+        - t3: **NDArray** of the same length as *data* containing the T3 values.
+        - state: **T3State**
     """
     ...
 

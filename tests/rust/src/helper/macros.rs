@@ -4,7 +4,7 @@ macro_rules! expect_err_overflow_or_ok_with {
         match $expr {
             Ok(ok) => $ok_block(ok),
             Err(e) => match e {
-                TechalibError::Overflow(_, _) => {}
+                TechalibError::DataNonFinite(_) => {}
                 _ => panic!(
                     "Expected Ok(_) or {:?}, but got: {:?}",
                     stringify!($err_variant),

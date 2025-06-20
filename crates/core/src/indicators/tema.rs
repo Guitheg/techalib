@@ -56,13 +56,13 @@ use crate::types::Float;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated TEMA values.
+/// - `tema`: A vector of [`Float`] representing the calculated TEMA values.
 /// - `state`: A [`TemaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct TemaResult {
     /// The calculated TEMA values.
-    pub values: Vec<Float>,
+    pub tema: Vec<Float>,
     /// A [`TemaState`], which can be used to calculate the next values
     /// incrementally.
     pub state: TemaState,
@@ -119,17 +119,17 @@ impl State<Float> for TemaState {
     /// ---
     /// - `sample`: The new input to update the TEMA state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_period(self.period)?;
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_finite(self.ema_1, "ema_1")?;
-        TechalibError::check_finite(self.ema_2, "ema_2")?;
-        TechalibError::check_finite(self.ema_3, "ema_3")?;
-        TechalibError::check_finite(self.alpha, "alpha")?;
+        check_param_gte!(self.period, 2);
+        check_finite!(sample);
+        check_finite!(self.ema_1);
+        check_finite!(self.ema_2);
+        check_finite!(self.ema_3);
+        check_finite!(self.alpha);
 
         let (tema, ema_1, ema_2, ema_3) =
             tema_next_unchecked(sample, self.ema_1, self.ema_2, self.ema_3, self.alpha);
 
-        TechalibError::check_overflow(tema)?;
+        check_finite!(tema);
 
         self.tema = tema;
         self.ema_1 = ema_1;
@@ -147,7 +147,7 @@ impl State<Float> for TemaState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(3 * (period - 1))
 }
 
@@ -173,7 +173,7 @@ pub fn tema(
     let tema_state = tema_into(data, period, alpha, &mut output)?;
 
     Ok(TemaResult {
-        values: output,
+        tema: output,
         state: tema_state,
     })
 }
@@ -205,7 +205,7 @@ pub fn tema_into(
     alpha: Option<Float>,
     output: &mut [Float],
 ) -> Result<TemaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
     let inv_period = 1.0 / period as Float;
     let lookback = lookback_from_period(period)?;
@@ -218,15 +218,15 @@ pub fn tema_into(
     let (output_value, mut ema_1, mut ema_2, mut ema_3) =
         init_tema_unchecked(data, period, inv_period, lookback, alpha, output)?;
     output[lookback] = output_value;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
 
         (output[idx], ema_1, ema_2, ema_3) =
             tema_next_unchecked(data[idx], ema_1, ema_2, ema_3, alpha);
 
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(TemaState {
@@ -269,12 +269,12 @@ pub(crate) fn init_tema_unchecked(
 
     let mut sum_ema_3 = ema_2;
     for idx in dema_lookback + 1..lookback {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         (_, ema_1, ema_2) = dema_next_unchecked(data[idx], ema_1, ema_2, alpha);
         sum_ema_3 += ema_2;
         output[idx] = Float::NAN;
     }
-    TechalibError::check_finite_at(lookback, data)?;
+    check_finite_at!(lookback, data);
     (_, ema_1, ema_2) = dema_next_unchecked(data[lookback], ema_1, ema_2, alpha);
     sum_ema_3 += ema_2;
     let ema_3 = sum_ema_3 * inv_period;

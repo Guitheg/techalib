@@ -113,16 +113,16 @@ impl State<&AtrSample> for AtrState {
     /// ---
     /// - `sample`: The new input to update the ATR state
     fn update(&mut self, sample: &AtrSample) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample.high, "sample.high")?;
-        TechalibError::check_finite(sample.low, "sample.low")?;
-        TechalibError::check_finite(sample.close, "sample.close")?;
+        check_finite!(sample.high);
+        check_finite!(sample.low);
+        check_finite!(sample.close);
         if self.period < 1 {
             return Err(TechalibError::BadParam(format!(
                 "Period must be greater than 0, got {}",
                 self.period
             )));
         }
-        TechalibError::check_finite(self.prev_close, "prev_close")?;
+        check_finite!(self.prev_close);
 
         let new_atr = atr_next_unchecked(
             sample.high,
@@ -133,7 +133,7 @@ impl State<&AtrSample> for AtrState {
             self.period as Float - 1.0,
         );
 
-        TechalibError::check_overflow(new_atr)?;
+        check_finite!(new_atr);
         self.atr = new_atr;
         self.prev_close = sample.close;
 
@@ -215,9 +215,9 @@ pub fn atr_into(
     period: usize,
     output: &mut [Float],
 ) -> Result<AtrState, TechalibError> {
-    TechalibError::check_same_length(("close", close), ("high", high))?;
-    TechalibError::check_same_length(("close", close), ("low", low))?;
-    TechalibError::check_same_length(("output", output), ("close", close))?;
+    check_param_eq!(close.len(), high.len());
+    check_param_eq!(close.len(), low.len());
+    check_param_eq!(output.len(), close.len());
 
     let len = close.len();
     let lookback = lookback_from_period(period)?;
@@ -230,12 +230,12 @@ pub fn atr_into(
 
     let output_value = init_atr_unchecked(high, low, close, lookback, inv_period, output)?;
     output[lookback] = output_value;
-    TechalibError::check_overflow_at(lookback, output)?;
+    check_finite_at!(lookback, output);
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx - 1, close)?;
-        TechalibError::check_finite_at(idx, high)?;
-        TechalibError::check_finite_at(idx, low)?;
+        check_finite_at!(idx - 1, close);
+        check_finite_at!(idx, high);
+        check_finite_at!(idx, low);
 
         output[idx] = atr_next_unchecked(
             high[idx],
@@ -246,7 +246,7 @@ pub fn atr_into(
             period_minus_one,
         );
 
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(AtrState {
@@ -265,21 +265,21 @@ fn init_atr_unchecked(
     inv_period: Float,
     output: &mut [Float],
 ) -> Result<Float, TechalibError> {
-    TechalibError::check_finite_at(0, close)?;
+    check_finite_at!(0, close);
     output[0] = Float::NAN;
     let mut sum = 0.0;
     for idx in 1..lookback {
-        TechalibError::check_finite_at(idx, close)?;
-        TechalibError::check_finite_at(idx, high)?;
-        TechalibError::check_finite_at(idx, low)?;
-        sum += true_range(high[idx], low[idx], close[idx - 1]);
+        check_finite_at!(idx, close);
+        check_finite_at!(idx, high);
+        check_finite_at!(idx, low);
+        sum += calculate_true_range(high[idx], low[idx], close[idx - 1]);
 
         output[idx] = Float::NAN;
     }
-    TechalibError::check_finite_at(lookback, close)?;
-    TechalibError::check_finite_at(lookback, high)?;
-    TechalibError::check_finite_at(lookback, low)?;
-    sum += true_range(high[lookback], low[lookback], close[lookback - 1]);
+    check_finite_at!(lookback, close);
+    check_finite_at!(lookback, high);
+    check_finite_at!(lookback, low);
+    sum += calculate_true_range(high[lookback], low[lookback], close[lookback - 1]);
 
     Ok(sum * inv_period)
 }
@@ -293,11 +293,11 @@ fn atr_next_unchecked(
     inv_period: Float,
     period_minus_one: Float,
 ) -> Float {
-    (true_range(high, low, prev_close) + (prev_atr * period_minus_one)) * inv_period
+    (calculate_true_range(high, low, prev_close) + (prev_atr * period_minus_one)) * inv_period
 }
 
 #[inline(always)]
-fn true_range(high: Float, low: Float, prev_close: Float) -> Float {
+pub(crate) fn calculate_true_range(high: Float, low: Float, prev_close: Float) -> Float {
     let hl = high - low;
     let hc = (high - prev_close).abs();
     let lc = (low - prev_close).abs();

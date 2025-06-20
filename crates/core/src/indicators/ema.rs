@@ -54,13 +54,13 @@ const DEFAULT_SMOOTHING: Float = 2.0;
 ///
 /// Attributes
 /// ---
-/// - `values`: A vector of [`Float`] representing the calculated EMA values.
+/// - `ema`: A vector of [`Float`] representing the calculated EMA values.
 /// - `state`: A [`EmaState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
 pub struct EmaResult {
     /// The calculated EMA values.
-    pub values: Vec<Float>,
+    pub ema: Vec<Float>,
     /// A [`EmaState`], which can be used to calculate the next values
     /// incrementally.
     pub state: EmaState,
@@ -101,12 +101,12 @@ impl State<Float> for EmaState {
     /// ---
     /// - `sample`: The new input to update the EMA state.
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
-        TechalibError::check_period(self.period)?;
-        TechalibError::check_finite(self.ema, "ema")?;
-        TechalibError::check_finite(sample, "sample")?;
-        TechalibError::check_finite(self.alpha, "alpha")?;
+        check_param_gte!(self.period, 2);
+        check_finite!(self.ema);
+        check_finite!(sample);
+        check_finite!(self.alpha);
         let ema = ema_next_unchecked(sample, self.ema, self.alpha);
-        TechalibError::check_overflow(ema)?;
+        check_finite!(ema);
         self.ema = ema;
         Ok(())
     }
@@ -119,7 +119,7 @@ impl State<Float> for EmaState {
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    TechalibError::check_period(period)?;
+    check_param_gte!(period, 2);
     Ok(period - 1)
 }
 
@@ -145,7 +145,7 @@ pub fn ema(
     let mut output = vec![0.0; data.len()];
     let ema_state = ema_into(data, period, alpha, &mut output)?;
     Ok(EmaResult {
-        values: output,
+        ema: output,
         state: ema_state,
     })
 }
@@ -175,7 +175,7 @@ pub fn ema_into(
     alpha: Option<Float>,
     output: &mut [Float],
 ) -> Result<EmaState, TechalibError> {
-    TechalibError::check_same_length(("data", data), ("output", output))?;
+    check_param_eq!(data.len(), output.len());
 
     let len = data.len();
     let inv_period = 1.0 / period as Float;
@@ -188,12 +188,12 @@ pub fn ema_into(
     let alpha = get_alpha_value(alpha, period)?;
 
     output[lookback] = init_sma_unchecked(data, period, inv_period, output)?;
-    TechalibError::check_overflow_at(lookback, output)?; // Weird line
+    check_finite_at!(lookback, output); // Weird line
 
     for idx in lookback + 1..len {
-        TechalibError::check_finite_at(idx, data)?;
+        check_finite_at!(idx, data);
         output[idx] = ema_next_unchecked(data[idx], output[idx - 1], alpha);
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(EmaState {

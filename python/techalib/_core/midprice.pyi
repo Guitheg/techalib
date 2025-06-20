@@ -15,7 +15,7 @@ class MidpriceState:
 
 class MidpriceResult(NamedTuple):
     """Result of the Midprice computation"""
-    values: NDArray
+    midprice: NDArray
     state: MidpriceState
 
 def midprice(
@@ -45,7 +45,7 @@ def midprice(
     -------
     MidpriceResult
         A named tuple containing the result of the Midprice computation.
-        - values: NDArray
+        - midprice: NDArray
             The computed midprice values.
         - state: **MidpriceState**
     """

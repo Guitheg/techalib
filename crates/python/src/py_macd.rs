@@ -89,10 +89,7 @@ impl PyMacdState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!(
-            "MacdState(macd={}, signal={}, histogram={}, fast_ema={}, slow_ema={}, fast_period={}, slow_period={}, signal_period={})",
-            self.macd, self.signal, self.histogram, self.fast_ema, self.slow_ema, self.fast_period, self.slow_period, self.signal_period
-        )
+        format!("{:?}", self)
     }
 }
 impl From<MacdState> for PyMacdState {

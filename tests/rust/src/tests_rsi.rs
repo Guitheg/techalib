@@ -19,7 +19,7 @@ fn generated_and_no_lookahead_rsi(file_name: &str, period: usize) {
     let next_count = 5;
     let last_idx = len - (1 + next_count);
 
-    let expected = columns.get("out").unwrap();
+    let expected = columns.get("rsi").unwrap();
 
     let input_prev = &input[0..last_idx];
 
@@ -31,7 +31,7 @@ fn generated_and_no_lookahead_rsi(file_name: &str, period: usize) {
     );
     let result = output.unwrap();
 
-    assert_vec_eq_gen_data(&expected[0..last_idx], &result.values);
+    assert_vec_eq_gen_data(&expected[0..last_idx], &result.rsi);
 
     let mut new_state = result.state;
     for i in 0..next_count {
@@ -91,7 +91,7 @@ fn min_data_for_one_value_mixed() {
     let data = &[10.0, 11.0, 10.0];
     let period = 2;
     let expected = vec![Float::NAN, Float::NAN, 50.0];
-    let result = rsi(data, period).unwrap().values;
+    let result = rsi(data, period).unwrap().rsi;
     assert_vec_close(&result, &expected);
 }
 
@@ -100,7 +100,7 @@ fn alternating_up_down() {
     let data = &[10.0, 12.0, 10.0, 12.0, 10.0, 12.0];
     let period = 2;
     let expected = vec![Float::NAN, Float::NAN, 50.0, 75.0, 37.5, 68.75];
-    let result = rsi(data, period).unwrap().values;
+    let result = rsi(data, period).unwrap().rsi;
     assert_vec_close(&result, &expected);
 }
 
@@ -124,7 +124,7 @@ fn all_values_approximatelly_same() {
         34.70156925,
         46.68643523,
     ];
-    let result = rsi(data, period).unwrap().values;
+    let result = rsi(data, period).unwrap().rsi;
     assert_vec_float_eq!(&result, &expected, 1e-6);
 }
 
@@ -133,7 +133,7 @@ fn all_values_same() {
     let data = &[10.0, 10.0, 10.0, 10.0, 10.0];
     let period = 3;
     let expected = vec![Float::NAN, Float::NAN, Float::NAN, 50.0, 50.0];
-    let result = rsi(data, period).unwrap().values;
+    let result = rsi(data, period).unwrap().rsi;
     assert_vec_close(&result, &expected);
 }
 
@@ -142,7 +142,7 @@ fn all_increasing() {
     let data = &[1.0, 2.0, 3.0, 4.0, 5.0];
     let period = 3;
     let expected = vec![Float::NAN, Float::NAN, Float::NAN, 100.0, 100.0];
-    let result = rsi(data, period).unwrap().values;
+    let result = rsi(data, period).unwrap().rsi;
     assert_vec_close(&result, &expected);
 }
 
@@ -151,7 +151,7 @@ fn all_decreasing() {
     let data = &[5.0, 4.0, 3.0, 2.0, 1.0];
     let period = 3;
     let expected = vec![Float::NAN, Float::NAN, Float::NAN, 0.0, 0.0];
-    let result = rsi(data, period).unwrap().values;
+    let result = rsi(data, period).unwrap().rsi;
     assert_vec_close(&result, &expected);
 }
 
@@ -202,7 +202,7 @@ fn finite_extreme_err_overflow_or_ok_all_finite() {
     let period = 3;
     expect_err_overflow_or_ok_with!(rsi(&data, period), |result: RsiResult| {
         assert!(
-            result.values.iter().skip(period).all(|v| v.is_finite()),
+            result.rsi.iter().skip(period).all(|v| v.is_finite()),
             "Expected all values to be finite"
         );
     });
@@ -248,7 +248,7 @@ proptest! {
                     "Expected InsufficientData error for data length <= period, got: {:?}", result);
             }
         } else {
-            let rsi_values = result.unwrap().values;
+            let rsi_values = result.unwrap().rsi;
             prop_assert_eq!(rsi_values.len(), data.len());
 
             for value in rsi_values.iter().take(period) {

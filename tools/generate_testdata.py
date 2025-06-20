@@ -7,6 +7,7 @@ from pathlib import Path
 import argparse
 from utils.logger import logger
 from utils import ohlcv
+from utils.kwargs_parser import ParseKwargs
 
 DATA_DIR = Path(__file__).parent.parent / "tests" / "data" / "generated"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -22,22 +23,31 @@ class Configuration():
         self.sample_size = sample_size
 
 CONFIG_DICT = {
-    "EMA": Configuration(talib, "EMA", ["close"], dict(timeperiod=30), ["out"]),
-    "SMA": Configuration(talib, "SMA", ["close"], dict(timeperiod=30), ["out"]),
-    "RSI": Configuration(talib, "RSI", ["close"], dict(timeperiod=14), ["out"]),
+    "EMA": Configuration(talib, "EMA", ["close"], dict(timeperiod=30), ["ema"]),
+    "SMA": Configuration(talib, "SMA", ["close"], dict(timeperiod=30), ["sma"]),
+    "RSI": Configuration(talib, "RSI", ["close"], dict(timeperiod=14), ["rsi"]),
     "MACD": Configuration(talib, "MACD", ["close"], dict(fastperiod=12, slowperiod=26, signalperiod=9), ["macd", "signal", "histogram"]),
     "BBANDS": Configuration(talib, "BBANDS", ["close"], dict(timeperiod=20, nbdevup=2, nbdevdn=2, matype=0), ["upper", "middle", "lower"]),
-    "WMA": Configuration(talib, "WMA", ["close"], dict(timeperiod=30), ["out"]),
-    "DEMA": Configuration(talib, "DEMA", ["close"], dict(timeperiod=30), ["out"]),
-    "TEMA": Configuration(talib, "TEMA", ["close"], dict(timeperiod=30), ["out"]),
-    "TRIMA": Configuration(talib, "TRIMA", ["close"], dict(timeperiod=30), ["out"]),
-    "T3": Configuration(talib, "T3", ["close"], dict(timeperiod=20, vfactor=0.7), ["out"]),
-    "KAMA": Configuration(talib, "KAMA", ["close"], dict(timeperiod=30), ["out"]),
-    "MIDPOINT": Configuration(talib, "MIDPOINT", ["close"], dict(timeperiod=14), ["out"]),
-    "MIDPRICE": Configuration(talib, "MIDPRICE", ["high", "low"], dict(timeperiod=14), ["out"]),
-    "ROC": Configuration(talib, "ROC", ["close"], dict(timeperiod=10), ["out"]),
+    "WMA": Configuration(talib, "WMA", ["close"], dict(timeperiod=30), ["wma"]),
+    "DEMA": Configuration(talib, "DEMA", ["close"], dict(timeperiod=30), ["dema"]),
+    "TEMA": Configuration(talib, "TEMA", ["close"], dict(timeperiod=30), ["tema"]),
+    "TRIMA": Configuration(talib, "TRIMA", ["close"], dict(timeperiod=30), ["trima"]),
+    "T3": Configuration(talib, "T3", ["close"], dict(timeperiod=20, vfactor=0.7), ["t3"]),
+    "KAMA": Configuration(talib, "KAMA", ["close"], dict(timeperiod=30), ["kama"]),
+    "MIDPOINT": Configuration(talib, "MIDPOINT", ["close"], dict(timeperiod=14), ["midpoint"]),
+    "MIDPRICE": Configuration(talib, "MIDPRICE", ["high", "low"], dict(timeperiod=14), ["midprice"]),
+    "ROC": Configuration(talib, "ROC", ["close"], dict(timeperiod=10), ["roc"]),
     "ATR": Configuration(talib, "ATR", ["high", "low", "close"], dict(timeperiod=14), ["atr"]),
     "AD": Configuration(talib, "AD", ["high", "low", "close", "volume"], dict(), ["ad"]),
+    "MINUS_DM": Configuration(talib, "MINUS_DM", ["high", "low"], dict(timeperiod=14), ["minus_dm"]),
+    "PLUS_DM": Configuration(talib, "PLUS_DM", ["high", "low"], dict(timeperiod=14), ["plus_dm"]),
+    "MINUS_DI": Configuration(talib, "MINUS_DI", ["high", "low", "close"], dict(timeperiod=14), ["minus_di"]),
+    "PLUS_DI": Configuration(talib, "PLUS_DI", ["high", "low", "close"], dict(timeperiod=14), ["plus_di"]),
+    "DX": Configuration(talib, "DX", ["high", "low", "close"], dict(timeperiod=14), ["dx"]),
+    "ADX": Configuration(talib, "ADX", ["high", "low", "close"], dict(timeperiod=14), ["adx"]),
+    "ROCR": Configuration(talib, "ROCR", ["close"], dict(timeperiod=14), ["rocr"]),
+    "AROON": Configuration(talib, "AROON", ["high", "low"], dict(timeperiod=14), ["aroondown", "aroonup"]),
+    "AROONOSC": Configuration(talib, "AROONOSC", ["high", "low"], dict(timeperiod=14), ["aroonosc"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):
@@ -70,26 +80,6 @@ def generate_test_data(filename: str, configuration: Configuration, seed: int):
     )
 
     logger.info(f"✅ ({configuration.fct_name}) Successfully write data at : {DATA_DIR / filename}.csv")
-
-
-class ParseKwargs(argparse.Action):
-    def __call__(self, parser, namespace, values, option_string=None):
-        setattr(namespace, self.dest, dict())
-        for value in values:
-            key, value = value.split('=')
-            if "." in value:
-                try:
-                    value = float(value)
-                except ValueError:
-                    logger.warning(f"Could not convert {value} to float, keeping as string.")
-            elif value.isdigit():
-                try:
-                    value = int(value)
-                except ValueError:
-                    logger.warning(f"Could not convert {value} to int, keeping as string.")
-            elif value.lower() in ['true', 'false']:
-                value = value.lower() == 'true'
-            getattr(namespace, self.dest)[key] = value
 
 def dict_to_posix_filename(d: dict) -> str:
     """Convert a dictionary to a posix filename."""

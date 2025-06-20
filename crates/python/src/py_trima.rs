@@ -86,7 +86,7 @@ impl PyTrimaState {
     }
     #[getter]
     pub fn __repr__(&self) -> String {
-        format!("TrimaState(trima={}, period={})", self.trima, self.period)
+        format!("{:?}", self)
     }
 }
 impl From<TrimaState> for PyTrimaState {

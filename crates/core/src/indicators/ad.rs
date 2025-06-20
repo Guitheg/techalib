@@ -101,10 +101,10 @@ impl State<&AdSample> for AdState {
     /// ---
     /// - `sample`: The new input to update the AD state
     fn update(&mut self, sample: &AdSample) -> Result<(), TechalibError> {
-        TechalibError::check_finite(sample.high, "sample.high")?;
-        TechalibError::check_finite(sample.low, "sample.low")?;
-        TechalibError::check_finite(sample.close, "sample.close")?;
-        TechalibError::check_finite(sample.volume, "sample.volume")?;
+        check_finite!(sample.high);
+        check_finite!(sample.low);
+        check_finite!(sample.close);
+        check_finite!(sample.volume);
 
         let new_ad = ad_next_unchecked(
             sample.high,
@@ -114,7 +114,7 @@ impl State<&AdSample> for AdState {
             self.ad,
         );
 
-        TechalibError::check_overflow(new_ad)?;
+        check_finite!(new_ad);
 
         self.ad = new_ad;
 
@@ -180,10 +180,10 @@ pub fn ad_into(
     volume: &[Float],
     output: &mut [Float],
 ) -> Result<AdState, TechalibError> {
-    TechalibError::check_same_length(("output", output), ("high", high))?;
-    TechalibError::check_same_length(("high", high), ("low", low))?;
-    TechalibError::check_same_length(("high", high), ("close", close))?;
-    TechalibError::check_same_length(("high", high), ("volume", volume))?;
+    check_param_eq!(output.len(), high.len());
+    check_param_eq!(high.len(), low.len());
+    check_param_eq!(high.len(), close.len());
+    check_param_eq!(high.len(), volume.len());
 
     let len = high.len();
 
@@ -193,19 +193,19 @@ pub fn ad_into(
 
     let mut ad = init_ad_unchecked(high, low, close, volume)?;
     output[0] = ad;
-    TechalibError::check_overflow_at(0, output)?;
+    check_finite_at!(0, output);
 
     for idx in 1..len {
-        TechalibError::check_finite_at(idx, high)?;
-        TechalibError::check_finite_at(idx, low)?;
-        TechalibError::check_finite_at(idx, close)?;
-        TechalibError::check_finite_at(idx, volume)?;
+        check_finite_at!(idx, high);
+        check_finite_at!(idx, low);
+        check_finite_at!(idx, close);
+        check_finite_at!(idx, volume);
 
         ad += money_flow_multiplier_unchecked(high[idx], low[idx], close[idx]) * volume[idx];
 
         output[idx] = ad;
 
-        TechalibError::check_overflow_at(idx, output)?;
+        check_finite_at!(idx, output);
     }
 
     Ok(AdState {
@@ -220,10 +220,10 @@ fn init_ad_unchecked(
     close: &[Float],
     volume: &[Float],
 ) -> Result<Float, TechalibError> {
-    TechalibError::check_finite_at(0, high)?;
-    TechalibError::check_finite_at(0, low)?;
-    TechalibError::check_finite_at(0, close)?;
-    TechalibError::check_finite_at(0, volume)?;
+    check_finite_at!(0, high);
+    check_finite_at!(0, low);
+    check_finite_at!(0, close);
+    check_finite_at!(0, volume);
     Ok(money_flow_multiplier_unchecked(high[0], low[0], close[0]) * volume[0])
 }
 

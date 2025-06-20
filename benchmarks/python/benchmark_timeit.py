@@ -1,4 +1,5 @@
 import argparse
+from timeit_bench.aroon import benchmark_aroon
 from timeit_bench.rocr import benchmark_rocr
 from timeit_bench.adx import benchmark_adx
 from timeit_bench.dx import benchmark_dx
@@ -24,6 +25,7 @@ from timeit_bench.ema import benchmark_ema
 from timeit_bench.macd import benchmark_macd
 
 BENCHMARKS = {
+    'aroon': benchmark_aroon,
     'rocr': benchmark_rocr,
     'adx': benchmark_adx,
     'dx': benchmark_dx,

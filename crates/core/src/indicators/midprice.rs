@@ -300,12 +300,12 @@ fn init_midprice_unchecked(
     for i in 0..lookback {
         check_finite_at!(i, high_prices);
         check_finite_at!(i, low_prices);
-        (maximum, minimum) = minmax(high_prices[i], low_prices[i], maximum, minimum);
+        (maximum, minimum) = maxmin(high_prices[i], low_prices[i], maximum, minimum);
         output[i] = f64::NAN;
     }
     check_finite_at!(lookback, high_prices);
     check_finite_at!(lookback, low_prices);
-    (maximum, minimum) = minmax(
+    (maximum, minimum) = maxmin(
         high_prices[lookback],
         low_prices[lookback],
         maximum,
@@ -319,13 +319,18 @@ fn midprice_next_unchecked(last_high_window: &[Float], last_low_window: &[Float]
     let mut maximum = last_high_window[0];
     let mut minimum = last_low_window[0];
     for j in 0..last_high_window.len() {
-        (maximum, minimum) = minmax(last_high_window[j], last_low_window[j], maximum, minimum);
+        (maximum, minimum) = maxmin(last_high_window[j], last_low_window[j], maximum, minimum);
     }
     calculate_midprice(maximum, minimum)
 }
 
 #[inline(always)]
-fn minmax(high_value: Float, low_value: Float, maximum: Float, minimum: Float) -> (Float, Float) {
+pub(crate) fn maxmin(
+    high_value: Float,
+    low_value: Float,
+    maximum: Float,
+    minimum: Float,
+) -> (Float, Float) {
     (
         if high_value > maximum {
             high_value

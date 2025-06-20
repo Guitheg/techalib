@@ -37,7 +37,7 @@ def bbands(
     std_down: float = 2.0,
     ma_type: BBandsMA = BBandsMA.SMA,
     release_gil: bool = False
-) -> BBandsResult | Tuple[NDArray, BBandsState]:
+) -> BBandsResult | Tuple[NDArray, NDArray, NDArray, BBandsState]:
     """
     BBands: Bollinger Bands computation.
     ----------

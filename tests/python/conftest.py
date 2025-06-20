@@ -21,25 +21,28 @@ def test_with_generated_data(csv_loader) -> Callable[[Callable], None]:
         input_names: list,
         output_names: list,
         state_out_names: list = None,
+        talib_output_names: list = None,
         rtol: float = 1e-7,
         atol: float = 0.0,
     ) -> None:
         if state_out_names is None:
             state_out_names = output_names
+        if talib_output_names is None:
+            talib_output_names = output_names
         df = csv_loader(filepath)
         next_count = 10
         prev_inputs = [df[name].iloc[:-next_count] for name in input_names]
         result = tx_fct(*prev_inputs)
-        for name in output_names:
+        for name, talib_name in zip(output_names, talib_output_names):
             out = getattr(result, name, None)
-            expected = df[name].iloc[:-next_count]
+            expected = df[talib_name].iloc[:-next_count]
             testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
 
         state = result.state
         for i in range(next_count):
             next_inputs = [df[name].iloc[-next_count + i] for name in input_names]
             state = tx_next_fct(*next_inputs, state)
-            for state_out_name, out_name in zip(state_out_names, output_names):
+            for state_out_name, out_name in zip(state_out_names, talib_output_names):
                 out = getattr(state, state_out_name, None)
                 expected = df[out_name].iloc[-next_count + i]
                 testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
@@ -54,25 +57,28 @@ def test_numpy_with_generated_data(csv_loader) -> Callable[[Callable], None]:
         input_names: list,
         output_names: list,
         state_out_names: list = None,
+        talib_output_names: list = None,
         rtol: float = 1e-7,
         atol: float = 0.0,
     ) -> None:
         if state_out_names is None:
             state_out_names = output_names
+        if talib_output_names is None:
+            talib_output_names = output_names
         df = csv_loader(filepath)
         next_count = 10
         prev_inputs = [np.array(df[name].iloc[:-next_count]) for name in input_names]
         result = tx_fct(*prev_inputs)
-        for name in output_names:
+        for name, talib_name in zip(output_names, talib_output_names):
             out = getattr(result, name, None)
-            expected = np.array(df[name].iloc[:-next_count])
+            expected = np.array(df[talib_name].iloc[:-next_count])
             testing.assert_allclose(expected, out, rtol=rtol, atol=atol)
 
         state = result.state
         for i in range(next_count):
             next_inputs = [np.array(df[name].iloc[-next_count + i]) for name in input_names]
             state = tx_next_fct(*next_inputs, state)
-            for state_out_name, out_name in zip(state_out_names, output_names):
+            for state_out_name, out_name in zip(state_out_names, talib_output_names):
                 out = getattr(state, state_out_name, None)
                 expected = df[out_name].iloc[-next_count + i]
                 testing.assert_allclose(expected, out, rtol=rtol, atol=atol)

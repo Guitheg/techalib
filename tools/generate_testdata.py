@@ -46,6 +46,8 @@ CONFIG_DICT = {
     "DX": Configuration(talib, "DX", ["high", "low", "close"], dict(timeperiod=14), ["dx"]),
     "ADX": Configuration(talib, "ADX", ["high", "low", "close"], dict(timeperiod=14), ["adx"]),
     "ROCR": Configuration(talib, "ROCR", ["close"], dict(timeperiod=14), ["rocr"]),
+    "AROON": Configuration(talib, "AROON", ["high", "low"], dict(timeperiod=14), ["aroondown", "aroonup"]),
+    "AROONOSC": Configuration(talib, "AROONOSC", ["high", "low"], dict(timeperiod=14), ["aroonosc"]),
 }
 
 def generate_test_data(filename: str, configuration: Configuration, seed: int):

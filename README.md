@@ -59,7 +59,7 @@ The number of supported indicators is set to increase.
 | **_Momentum_**            |||
 |                           | **macd** - Moving Average Convergence Divergence                | ✅        |
 |                           | **adx** - Average Directional Movement Index                    | ✅        |
-|                           | **aroon** - Aroon                                               | ⬜        |
+|                           | **aroon** - Aroon                                               | ✅        |
 |                           | **dx** - Directional Movement Index                             | ✅        |
 |                           | **minus_di** - Minus Directional Indicator                      | ✅        |
 |                           | **minus_dm** - Minus Directional Movement                       | ✅        |

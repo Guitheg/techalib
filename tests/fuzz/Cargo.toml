@@ -172,3 +172,10 @@ path = "fuzz_targets/fuzz_rocr.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "aroon"
+path = "fuzz_targets/fuzz_aroon.rs"
+test = false
+doc = false
+bench = false

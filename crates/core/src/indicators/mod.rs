@@ -1,6 +1,7 @@
 pub mod ad;
 pub mod adx;
 pub mod aroon;
+pub mod aroonosc;
 pub mod atr;
 pub mod bbands;
 pub mod dema;

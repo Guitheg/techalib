@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 FCT_TO_NAMEDTUPLE = {
+    "aroonosc": namedtuple("AroonoscResult", ["aroonosc", "state"]),
     "aroon": namedtuple("AroonResult", ["aroon_down", "aroon_up", "state"]),
     "rocr": namedtuple("RocrResult", ["rocr", "state"]),
     "adx": namedtuple("AdxResult", ["adx", "state"]),

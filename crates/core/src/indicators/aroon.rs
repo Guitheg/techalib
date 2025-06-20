@@ -266,7 +266,7 @@ pub fn aroon_into(
 }
 
 #[inline(always)]
-fn init_aroon_unchecked(
+pub(crate) fn init_aroon_unchecked(
     high: &[Float],
     low: &[Float],
     factor: Float,
@@ -295,7 +295,7 @@ fn init_aroon_unchecked(
 }
 
 #[inline(always)]
-fn aroon_next_unchecked(
+pub(crate) fn aroon_next_unchecked(
     high_window: &[Float],
     low_window: &[Float],
     factor: Float,

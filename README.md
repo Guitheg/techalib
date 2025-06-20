@@ -68,7 +68,7 @@ The number of supported indicators is set to increase.
 |                           | **roc** - Rate of change                                        | ✅        |
 |                           | **rocr** - Rate of change ratio                                 | ✅        |
 | _Oscillator_              | **rsi** - Relative Strength Index                               | ✅        |
-|                           | **aroonosc** - Aroon Oscillator                                 | ⬜        |
+|                           | **aroonosc** - Aroon Oscillator                                 | ✅        |
 | **_Volume_**              |||
 |                           | **ad** - Chaikin A/D Line                                       | ✅        |
 | **_Volatility_**          |||

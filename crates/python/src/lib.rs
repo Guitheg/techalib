@@ -3,6 +3,7 @@ use pyo3::prelude::*;
 mod py_ad;
 mod py_adx;
 mod py_aroon;
+mod py_aroonosc;
 mod py_atr;
 mod py_bbands;
 mod py_dema;
@@ -110,5 +111,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_aroon::aroon, m)?)?;
     m.add_function(wrap_pyfunction!(py_aroon::aroon_next, m)?)?;
     m.add_class::<py_aroon::PyAroonState>()?;
+    m.add_function(wrap_pyfunction!(py_aroonosc::aroonosc, m)?)?;
+    m.add_function(wrap_pyfunction!(py_aroonosc::aroonosc_next, m)?)?;
+    m.add_class::<py_aroonosc::PyAroonoscState>()?;
     Ok(())
 }

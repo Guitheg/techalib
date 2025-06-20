@@ -8,6 +8,8 @@ pub(crate) mod tests_adx;
 #[cfg(test)]
 pub(crate) mod tests_aroon;
 #[cfg(test)]
+pub(crate) mod tests_aroonosc;
+#[cfg(test)]
 pub(crate) mod tests_atr;
 #[cfg(test)]
 pub(crate) mod tests_bbands;

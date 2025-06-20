@@ -66,8 +66,7 @@ The number of supported indicators is set to increase.
 |                           | **plus_di** - Plus Directional Indicator                        | ✅        |
 |                           | **plus_dm** - Plus Directional Movement                         | ✅        |
 |                           | **roc** - Rate of change                                        | ✅        |
-|                           | **rocr** - Rate of change ratio                                 | ⬜        |
-|                           | **rocr100** - Rate of change ratio 100 scale                    | ⬜        |
+|                           | **rocr** - Rate of change ratio                                 | ✅        |
 | _Oscillator_              | **rsi** - Relative Strength Index                               | ✅        |
 |                           | **aroonosc** - Aroon Oscillator                                 | ⬜        |
 | **_Volume_**              |||

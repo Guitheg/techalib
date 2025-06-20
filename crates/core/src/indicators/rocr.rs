@@ -35,10 +35,10 @@
 */
 
 /*
-    Inspired by TA-LIB ROC implementation
+    Inspired by TA-LIB ROCR implementation
 */
 
-//! Rate Of Change (ROC) implementation
+//! Rate of Change Ratio (ROCR) implementation
 
 use std::collections::VecDeque;
 
@@ -46,118 +46,91 @@ use crate::errors::TechalibError;
 use crate::traits::State;
 use crate::types::Float;
 
-/// ROC calculation result
+/// ROCR calculation result
 /// ---
-/// This struct holds the result and the state ([`RocState`])
+/// This struct holds the result and the state ([`RocrState`])
 /// of the calculation.
 ///
 /// Attributes
 /// ---
-/// - `roc`: A vector of [`Float`] representing the calculated values.
-/// - `state`: A [`RocState`], which can be used to calculate
+/// - `rocr`: A vector of [`Float`] representing the calculated values.
+/// - `state`: A [`RocrState`], which can be used to calculate
 ///   the next values incrementally.
 #[derive(Debug)]
-pub struct RocResult {
-    /// The calculated ROC values.
-    pub roc: Vec<Float>,
-    /// The [`RocState`] state of the ROC calculation.
-    pub state: RocState,
+pub struct RocrResult {
+    /// The calculated ROCR values.
+    pub rocr: Vec<Float>,
+    /// The [`RocrState`] state of the ROCR calculation.
+    pub state: RocrState,
 }
 
-/// ROC calculation state
+/// ROCR calculation state
 /// ---
 /// This struct holds the state of the calculation.
 /// It is used to calculate the next values in a incremental way.
 ///
 /// Attributes
 /// ---
-/// **Last outputs values**
-/// - `roc`: The last calculated ROC value.
+/// **Previous outputs values**
+/// - `prev_rocr`: The last calculated ROCR value.
 ///
 /// **State values**
-/// - `last_window`: The last value of the window used for the ROC calculation.
+/// - `prev_roc_window`: The previous values used for the ROCR calculation.
 ///
 /// **Parameters**
-/// - `period`: The period for the ROC calculation.
+/// - `period`: The period for the ROCR calculation.
 #[derive(Debug, Clone)]
-pub struct RocState {
+pub struct RocrState {
     // Outputs
-    /// The last calculated ROC value.
-    pub roc: Float,
-
+    /// The last calculated ROCR value.
+    pub prev_rocr: Float,
     // State values
-    /// The last value of the window used for the ROC calculation.
-    pub last_window: VecDeque<Float>,
-
+    /// The previous values used for the ROCR calculation.
+    pub prev_roc_window: VecDeque<Float>,
     // Parameters
-    /// The period used for the ROC calculation.
+    /// The period for the ROCR calculation.
     pub period: usize,
 }
 
-impl State<Float> for RocState {
-    /// Update the [`RocState`] with a new sample
+impl State<Float> for RocrState {
+    /// Update the [`RocrState`] with a new sample
     ///
     /// Input Arguments
     /// ---
-    /// - `sample`: The new input to update the ROC state
+    /// - `sample`: The new input to update the ROCR state
     fn update(&mut self, sample: Float) -> Result<(), TechalibError> {
         check_finite!(sample);
-        if self.period < 1 {
-            return Err(TechalibError::BadParam(format!(
-                "Period must be greater than 0, got {}",
-                self.period
-            )));
-        }
+        check_param_eq!(self.prev_roc_window.len(), self.period);
+        check_vec_finite!(self.prev_roc_window);
 
-        if self.last_window.len() != self.period {
-            return Err(TechalibError::BadParam(format!(
-                "SMA state last_window length ({}) does not match period ({})",
-                self.last_window.len(),
-                self.period
-            )));
-        }
-
-        for (idx, &value) in self.last_window.iter().enumerate() {
-            if !value.is_finite() {
-                return Err(TechalibError::DataNonFinite(format!(
-                    "window[{idx}] = {value:?}"
-                )));
-            }
-        }
-
-        let mut window = self.last_window.clone();
+        let mut window = self.prev_roc_window.clone();
 
         let old_value = window.pop_front().ok_or(TechalibError::InsufficientData)?;
         window.push_back(sample);
 
-        let new_roc = roc_next_unchecked(sample, old_value);
+        let new_rocr = rocr_next_unchecked(sample, old_value);
 
-        check_finite!(new_roc);
-        self.roc = new_roc;
-        self.last_window = window;
+        check_finite!(new_rocr);
+        self.prev_rocr = new_rocr;
+        self.prev_roc_window = window;
         Ok(())
     }
 }
 
-/// Lookback period for ROC calculation
+/// Lookback period for ROCR calculation
 /// ---
 /// With `n = lookback_from_period(period)`,
 /// the `n-1` first values that will be return will be `NaN`
 /// The n-th value will be the first valid value,
 #[inline(always)]
 pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
-    if period < 1 {
-        return Err(TechalibError::BadParam(format!(
-            "Period must be greater than 0, got {}",
-            period
-        )));
-    }
+    check_param_gte!(period, 1);
     Ok(period)
 }
 
-/// Calculation of the ROC function
+/// Calculation of the ROCR function
 /// ---
-/// It returns a [`RocResult`]
+/// It returns a [`RocrResult`]
 ///
 /// Input Arguments
 /// ---
@@ -166,23 +139,23 @@ pub fn lookback_from_period(period: usize) -> Result<usize, TechalibError> {
 ///
 /// Returns
 /// ---
-/// A `Result` containing a [`RocResult`],
+/// A `Result` containing a [`RocrResult`],
 /// or a [`TechalibError`] error if the calculation fails.
-pub fn roc(data: &[Float], period: usize) -> Result<RocResult, TechalibError> {
+pub fn rocr(data: &[Float], period: usize) -> Result<RocrResult, TechalibError> {
     let mut output = vec![0.0; data.len()];
 
-    let roc_state = roc_into(data, period, output.as_mut_slice())?;
+    let rocr_state = rocr_into(data, period, output.as_mut_slice())?;
 
-    Ok(RocResult {
-        roc: output,
-        state: roc_state,
+    Ok(RocrResult {
+        rocr: output,
+        state: rocr_state,
     })
 }
 
-/// Calculation of the ROC function
+/// Calculation of the ROCR function
 /// ---
 /// It stores the results in the provided output arrays and
-/// return the state [`RocState`].
+/// return the state [`RocrState`].
 ///
 /// Input Arguments
 /// ---
@@ -191,63 +164,63 @@ pub fn roc(data: &[Float], period: usize) -> Result<RocResult, TechalibError> {
 ///
 /// Output Arguments
 /// ---
-/// - `output`: A mutable slice of [`Float`] where the calculated values will be stored.
+/// - `output`: A mutable slice of [`Float`] where the results will be stored.
 ///
 /// Returns
 /// ---
-/// A `Result` containing a [`RocState`],
+/// A `Result` containing a [`RocrState`],
 /// or a [`TechalibError`] error if the calculation fails.
-pub fn roc_into(
+pub fn rocr_into(
     data: &[Float],
     period: usize,
     output: &mut [Float],
-) -> Result<RocState, TechalibError> {
-    check_param_eq!(output.len(), data.len());
-
+) -> Result<RocrState, TechalibError> {
+    check_param_eq!(data.len(), output.len());
     let len = data.len();
+
     let lookback = lookback_from_period(period)?;
 
     if len <= lookback {
         return Err(TechalibError::InsufficientData);
     }
 
-    let output_value = init_roc_unchecked(data, lookback, output)?;
-    output[lookback] = output_value;
-    check_finite_at!(lookback, output);
+    let first_output = init_rocr_unchecked(data, lookback, output)?;
+    check_finite!(first_output);
+    output[lookback] = first_output;
 
     for idx in lookback + 1..len {
         check_finite_at!(idx, data);
 
-        output[idx] = roc_next_unchecked(data[idx], data[idx - period]);
+        output[idx] = rocr_next_unchecked(data[idx], data[idx - period]);
 
         check_finite_at!(idx, output);
     }
 
-    Ok(RocState {
-        roc: output[len - 1],
-        last_window: VecDeque::from(data[len - period..len].to_vec()),
+    Ok(RocrState {
+        prev_rocr: output[len - 1],
+        prev_roc_window: VecDeque::from(data[len - period..len].to_vec()),
         period,
     })
 }
 
 #[inline(always)]
-fn init_roc_unchecked(
+fn init_rocr_unchecked(
     data: &[Float],
     lookback: usize,
     output: &mut [Float],
 ) -> Result<Float, TechalibError> {
-    for (idx, item) in output.iter_mut().enumerate().take(lookback) {
+    for idx in 0..lookback {
         check_finite_at!(idx, data);
-        *item = Float::NAN;
+        output[idx] = Float::NAN;
     }
     check_finite_at!(lookback, data);
-    Ok(roc_next_unchecked(data[lookback], data[0]))
+    Ok(rocr_next_unchecked(data[lookback], data[0]))
 }
 
 #[inline(always)]
-fn roc_next_unchecked(new_value: Float, last_value: Float) -> Float {
-    if last_value == 0.0 {
+fn rocr_next_unchecked(new_value: Float, prev_value: Float) -> Float {
+    if prev_value == 0.0 {
         return 0.0;
     }
-    ((new_value / last_value) - 1.0) * 100.0
+    new_value / prev_value
 }

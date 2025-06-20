@@ -14,6 +14,7 @@ pub mod minus_dm;
 pub mod plus_di;
 pub mod plus_dm;
 pub mod roc;
+pub mod rocr;
 pub mod rsi;
 pub mod sma;
 pub mod t3;

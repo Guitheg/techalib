@@ -9,7 +9,7 @@ INNER_SAMPLE_STRUCT = ROOT / "tools" / "templates" / "inner_sample_struct.templa
 
 def struct_result_definition_outputs(indicator_name: str, fct_outputs: List[str]) -> str:
     if not fct_outputs:
-        return f"pub {indicator_name}: Vec<Float>,\n"
+        return f"pub {indicator_name}: Vec<Float>"
     else:
         return f",\n{T}".join([f"pub {output}: Vec<Float>" for output in fct_outputs])
 
@@ -53,7 +53,7 @@ def state_update_checks(
             if type_ == "Float":
                 checks.append(f'check_finite!(self.prev_{state});')
             if type_ == "Vec<Float>" or type_ == "VecDeque<Float>":
-                checks.append(f'check_finite_vec!(self.prev_{state});')
+                checks.append(f'check_vec_finite!(self.prev_{state});')
     return f"\n{T2}".join(checks)
 
 def state_update_next_outputs(

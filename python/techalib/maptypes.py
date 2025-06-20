@@ -1,8 +1,9 @@
 from collections import namedtuple
 
 FCT_TO_NAMEDTUPLE = {
-    "adx": namedtuple("AdxResult", ["adx", "state"]), #TODO: ADD OUTPUTS ARGS
-    "dx": namedtuple("DxResult", ["dx", "state"]), #TODO: ADD OUTPUTS ARGS
+    "rocr": namedtuple("RocrResult", ["rocr", "state"]),
+    "adx": namedtuple("AdxResult", ["adx", "state"]),
+    "dx": namedtuple("DxResult", ["dx", "state"]),
     "plus_di": namedtuple("Plus_diResult", ["plus_di", "state"]),
     "minus_di": namedtuple("Minus_diResult", ["minus_di", "state"]),
     "plus_dm": namedtuple("Plus_dmResult", ["plus_dm", "state"]),

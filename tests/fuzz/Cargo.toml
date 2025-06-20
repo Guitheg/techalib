@@ -165,3 +165,10 @@ path = "fuzz_targets/fuzz_adx.rs"
 test = false
 doc = false
 bench = false
+
+[[bin]]
+name = "rocr"
+path = "fuzz_targets/fuzz_rocr.rs"
+test = false
+doc = false
+bench = false

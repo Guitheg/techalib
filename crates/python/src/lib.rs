@@ -16,6 +16,7 @@ mod py_minus_dm;
 mod py_plus_di;
 mod py_plus_dm;
 mod py_roc;
+mod py_rocr;
 mod py_rsi;
 mod py_sma;
 mod py_t3;
@@ -102,5 +103,8 @@ fn _core(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(py_adx::adx, m)?)?;
     m.add_function(wrap_pyfunction!(py_adx::adx_next, m)?)?;
     m.add_class::<py_adx::PyAdxState>()?;
+    m.add_function(wrap_pyfunction!(py_rocr::rocr, m)?)?;
+    m.add_function(wrap_pyfunction!(py_rocr::rocr_next, m)?)?;
+    m.add_class::<py_rocr::PyRocrState>()?;
     Ok(())
 }

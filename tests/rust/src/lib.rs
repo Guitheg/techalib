@@ -34,6 +34,8 @@ pub(crate) mod tests_plus_dm;
 #[cfg(test)]
 pub(crate) mod tests_roc;
 #[cfg(test)]
+pub(crate) mod tests_rocr;
+#[cfg(test)]
 pub(crate) mod tests_rsi;
 #[cfg(test)]
 pub(crate) mod tests_sma;

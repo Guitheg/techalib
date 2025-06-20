@@ -1,3 +1,13 @@
+[project]
+name = "techalib"
+description = "Techalib: A TECHnical Analysis LIBrary"
+authors = [
+    { name = "Guitheg" }
+]
+keywords = ["technical analysis", "finance", "trading", "indicators", "ta"]
+readme = "README.md"
+dynamic = ["version"]
+
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
